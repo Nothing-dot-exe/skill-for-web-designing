@@ -1,6 +1,6 @@
 # 🧪 3D & COMPONENT DESIGN LAB // MASTER SUITE
 
-Welcome to the **3D & Component Design Lab**. This folder contains an exhaustive, production-grade test suite of 3D WebGL experiences, buttons, cards, typography, color systems, and full-stack component syntheses adhering strictly to the **[Anti-Basic Vibe Coding Skill (SKILL.md)](../.agents/skills/anti-basic-web-design/SKILL.md)**.
+Welcome to the **3D & Component Design Lab**. This folder contains an exhaustive, production-grade test suite of 3D WebGL experiences, buttons, cards, typography, color systems, and full-stack component syntheses adhering strictly to the **[Anti-Basic Vibe Coding Skill (SKILL.md)](../skills/anti-basic-web-design/SKILL.md)**.
 
 ---
 

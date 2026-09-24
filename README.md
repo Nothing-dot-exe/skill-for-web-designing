@@ -1,9 +1,9 @@
 # 🛡️ Anti-Basic Vibe Coding // The Definitive AI Agent Skill & Design Ecosystem
 
-[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-anti--basic--web--design-00F0FF?style=for-the-badge&logo=anthropic&logoColor=black)](./.agents/skills/anti-basic-web-design/SKILL.md)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-anti--basic--web--design-00F0FF?style=for-the-badge&logo=anthropic&logoColor=black)](./skills/anti-basic-web-design/SKILL.md)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-10B981?style=for-the-badge)](./index.html)
 [![WCAG](https://img.shields.io/badge/WCAG%202.1-AA%2FAAA%20Verified-A855F7?style=for-the-badge)](./index.html)
-[![Zero AI Slop](https://img.shields.io/badge/Aesthetic-Zero%20AI%20Slop-FF6B00?style=for-the-badge)](./.agents/skills/anti-basic-web-design/SKILL.md)
+[![Zero AI Slop](https://img.shields.io/badge/Aesthetic-Zero%20AI%20Slop-FF6B00?style=for-the-badge)](./skills/anti-basic-web-design/SKILL.md)
 [![License](https://img.shields.io/badge/License-MIT-white?style=for-the-badge)](#-license)
 
 > **The universal engineering and aesthetic instruction manual for AI coding agents (Antigravity, Cursor, Claude Code, Windsurf, Copilot, ChatGPT).**  
