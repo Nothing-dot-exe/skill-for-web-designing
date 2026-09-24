@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLOOM // Daily Mindful Habits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #EEF3FA;
+      --clay-card: #F4F8FD;
+      --clay-shadow: 14px 14px 28px rgba(160, 175, 200, 0.5), -10px -10px 22px rgba(255, 255, 255, 0.9), inset -6px -6px 12px rgba(160, 175, 200, 0.3), inset 6px 6px 12px rgba(255, 255, 255, 0.8);
+      --clay-btn: 8px 8px 16px rgba(160, 175, 200, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.9), inset -4px -4px 8px rgba(160, 175, 200, 0.25), inset 4px 4px 8px rgba(255, 255, 255, 0.8);
+      --clay-pressed: inset 6px 6px 12px rgba(160, 175, 200, 0.5), inset -6px -6px 12px rgba(255, 255, 255, 0.8);
+      --pastel-coral: #FF8F8F;
+      --pastel-mint: #70E2B8;
+      --pastel-lavender: #A5A6F6;
+      --font: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background: var(--bg); color: #3A4354; padding: 40px 20px; min-height: 100vh; display: grid; place-items: center; }
+
+    .app-frame {
+      width: 100%; max-width: 480px; background: var(--clay-card); border-radius: 36px; padding: 36px;
+      box-shadow: var(--clay-shadow);
+    }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+    
+    .streak-pill {
+      background: #FFF; padding: 8px 16px; border-radius: 99px; box-shadow: var(--clay-btn);
+      font-weight: 700; font-size: 0.85rem; color: #FF7043; display: flex; align-items: center; gap: 6px;
+    }
+
+    .habit-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+    .habit-item {
+      background: #FFFFFF; border-radius: 24px; padding: 18px 22px; box-shadow: var(--clay-btn);
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;
+      user-select: none;
+    }
+    .habit-item:active { box-shadow: var(--clay-pressed); transform: scale(0.98); }
+    .habit-item.done { background: #E8F8F2; opacity: 0.85; }
+    .habit-item.done .habit-name { text-decoration: line-through; color: #8898AA; }
+
+    .check-bubble {
+      width: 28px; height: 28px; border-radius: 50%; background: #EEF3FA; box-shadow: var(--clay-pressed);
+      display: grid; place-items: center; transition: all 0.2s ease; font-size: 0.85rem;
+    }
+    .habit-item.done .check-bubble {
+      background: var(--pastel-mint); color: #fff; box-shadow: var(--clay-btn);
+    }
+
+    .btn-add {
+      width: 100%; padding: 16px; border-radius: 99px; background: var(--pastel-lavender); color: #fff;
+      font-weight: 800; font-size: 1rem; border: none; cursor: pointer; box-shadow: var(--clay-btn);
+      transition: all 0.2s ease;
+    }
+    .btn-add:hover { transform: translateY(-2px); }
+    .btn-add:active { box-shadow: var(--clay-pressed); transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <header>
+      <div>
+        <small style="color: #8C98A9; font-weight: 700; text-transform: uppercase;">Wednesday, Sep 24</small>
+        <h1>BLOOM // Mind</h1>
+      </div>
+      <div class="streak-pill">
+        <span>🔥</span> <span id="streak-num">7 Days</span>
+      </div>
+    </header>
+
+    <div class="habit-list">
+      <div class="habit-item" onclick="toggleHabit(this)">
+        <div>
+          <strong class="habit-name" style="display: block;">Morning Meditation</strong>
+          <small style="color: #9AA6B8;">15 minutes breathwork</small>
+        </div>
+        <div class="check-bubble">✓</div>
+      </div>
+
+      <div class="habit-item" onclick="toggleHabit(this)">
+        <div>
+          <strong class="habit-name" style="display: block;">Hydrate 2.0 Liters</strong>
+          <small style="color: #9AA6B8;">Electrolytes + lemon</small>
+        </div>
+        <div class="check-bubble">✓</div>
+      </div>
+
+      <div class="habit-item" onclick="toggleHabit(this)">
+        <div>
+          <strong class="habit-name" style="display: block;">Deep Coding Focus</strong>
+          <small style="color: #9AA6B8;">90 min zero notification block</small>
+        </div>
+        <div class="check-bubble">✓</div>
+      </div>
+    </div>
+
+    <button class="btn-add" onclick="addHabit()">+ Add New Mindful Ritual</button>
+
+    <footer style="margin-top: 40px; padding-top: 20px; border-top: 2px dashed rgba(166, 180, 200, 0.4); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #7A8AA0; flex-wrap: wrap; gap: 10px;">
+      <div>BLOOM // CLAYMORPHISM HABIT SUITE</div>
+      <div>Designed by <strong style="color: #6366F1;">Antigravity</strong> // Google DeepMind</div>
+      <div><a href="../../index.html" style="color: #4F46E5; text-decoration: none; font-weight: 700;">← Master Hub (21 Sites)</a></div>
+    </footer>
+  </div>
+
+  <div id="clay-toast-dock" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999;"></div>
+
+  <script>
+    function showClayToast(msg) {
+      const dock = document.getElementById('clay-toast-dock');
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: #F0F4FD; color: #1E293B; border-radius: 16px; padding: 14px 22px; font-weight: 700; font-size: 0.88rem; box-shadow: 8px 8px 16px rgba(166,180,200,0.6), -6px -6px 12px rgba(255,255,255,0.9); transition: all 0.25s ease;';
+      toast.innerText = msg;
+      dock.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 250); }, 3000);
+    }
+
+    function toggleHabit(elem) {
+      elem.classList.toggle('done');
+      const allDone = document.querySelectorAll('.habit-item:not(.done)').length === 0;
+      if (allDone) {
+        showClayToast('🎉 Incredible! All daily mindful rituals completed! Streak increased.');
+        document.getElementById('streak-num').innerText = '8 Days';
+      }
+    }
+
+    function addHabit() {
+      const rituals = ['Cold Plunge 3 min', 'Reading 20 pages', 'Intermittent Fast 16h', 'Breathwork 10 min'];
+      const name = rituals[Math.floor(Math.random() * rituals.length)];
+      const list = document.querySelector('.habit-list');
+      const item = document.createElement('div');
+      item.className = 'habit-item';
+      item.onclick = function() { toggleHabit(this); };
+      item.innerHTML = `<div><strong class="habit-name" style="display: block;">${name}</strong><small style="color: #9AA6B8;">Ritual added</small></div><div class="check-bubble">✓</div>`;
+      list.appendChild(item);
+      showClayToast(`✓ Added ritual: "${name}"`);
+    }
+  </script>
+</body>
+</html>

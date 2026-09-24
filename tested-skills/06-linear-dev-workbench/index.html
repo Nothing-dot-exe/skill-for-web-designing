@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS // Neural Inference Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #08080B;
+      --surface: #101015;
+      --surface-hover: #16161D;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-sheen: rgba(255, 255, 255, 0.18);
+      --accent: #FF5A1F;
+      --accent-glow: rgba(255, 90, 31, 0.25);
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: #F0F0F5; font-family: var(--font-sans); padding: 40px 20px; line-height: 1.6;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .logo-badge { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+    .hero-box { margin-bottom: 40px; }
+    .chip { font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(255, 90, 31, 0.1); border: 1px solid rgba(255, 90, 31, 0.25); padding: 4px 12px; border-radius: 99px; text-transform: uppercase; }
+    .h1-title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; margin: 12px 0; }
+
+    .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-top: 1px solid var(--border-sheen);
+      border-radius: 20px; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-12 { grid-column: span 12; }
+    @media (max-width: 900px) { .span-7, .span-5 { grid-column: span 12; } }
+
+    .code-editor {
+      background: #050507; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-top: 16px;
+      font-family: var(--font-mono); font-size: 0.85rem; color: #A0A0B0; overflow-x: auto;
+    }
+    .code-editor span.keyword { color: var(--accent); font-weight: bold; }
+    .code-editor span.string { color: #34D399; }
+
+    .btn-action {
+      background: linear-gradient(180deg, #24242F 0%, #14141A 100%); border: 1px solid var(--border-sheen);
+      color: #fff; padding: 10px 20px; border-radius: 99px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+    }
+    .btn-action:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-2px); }
+
+    .slider-row { margin-top: 20px; }
+    .slider-row input[type=range] { width: 100%; accent-color: var(--accent); margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">
+        <span class="logo-badge"></span> NEXUS // GATEWAY
+      </div>
+      <button class="btn-action" onclick="copyAPIKey()">Copy Secret Key</button>
+    </header>
+
+    <div class="hero-box">
+      <span class="chip">Zero-Coldstart API</span>
+      <h1 class="h1-title">Inference at the Speed of Light.</h1>
+      <p style="color: #888; max-width: 580px;">Unified REST endpoint routing multi-modal LLM requests across clustered H100 SXM5 GPUs with automatic fallback.</p>
+    </div>
+
+    <div class="bento">
+      <div class="card span-7">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 1.15rem; font-weight: 700;">Live Endpoint Benchmark</h3>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #34D399;">● 200 OK (22ms)</span>
+        </div>
+
+        <div class="code-editor">
+<span class="keyword">curl</span> -X POST https://api.nexus.io/v1/chat/completions \<br>
+  -H <span class="string">"Authorization: Bearer nx_live_849202"</span> \<br>
+  -d <span class="string">'{"model": "deep-reason-r1", "tokens": 512}'</span>
+        </div>
+
+        <button class="btn-action" style="margin-top: 16px;" onclick="simulateInference()">Send Test Payload ➔</button>
+        <div id="api-output" style="margin-top: 12px; font-family: var(--font-mono); font-size: 0.78rem; color: #888;"></div>
+      </div>
+
+      <div class="card span-5">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 12px;">Token Cost Estimator</h3>
+        <p style="color: #777; font-size: 0.85rem;">Slide to estimate monthly inference cost based on daily requests.</p>
+        
+        <div class="slider-row">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.85rem;">
+            <span>DAILY QUERIES:</span>
+            <strong id="query-label" style="color: var(--accent);">50,000</strong>
+          </div>
+          <input type="range" id="query-slider" min="5000" max="500000" step="5000" value="50000" oninput="updateCost()">
+          
+          <div style="margin-top: 18px; padding: 14px; background: rgba(0,0,0,0.4); border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem;">MONTHLY COST:</span>
+            <span id="cost-label" style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: 800; color: #34D399;">$45.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.78rem; color: #666; flex-wrap: wrap; gap: 12px;">
+      <div>SYNAPSE // EDGE DEV BENCHMARK</div>
+      <div>Designed &amp; Architected by <strong style="color: var(--accent);">Antigravity</strong> // Google DeepMind</div>
+      <div><a href="../../index.html" style="color: #888; text-decoration: none;">← Master Hub (20 Sites)</a></div>
+    </footer>
+  </div>
+
+  <script>
+    function copyAPIKey() {
+      navigator.clipboard.writeText('nx_live_8492029314810294');
+      const badge = document.querySelector('.btn-copy');
+      const original = badge.innerText;
+      badge.innerText = 'Copied!';
+      badge.style.color = '#34D399';
+      setTimeout(() => { badge.innerText = original; badge.style.color = ''; }, 2000);
+    }
+
+    function simulateInference() {
+      const out = document.getElementById('api-output');
+      out.innerText = '⚡ Routing to Tokyo cluster... Response generated in 24ms (Tokens: 148, Cost: $0.00014)';
+      out.style.color = '#34D399';
+    }
+
+    function updateCost() {
+      const queries = parseInt(document.getElementById('query-slider').value);
+      document.getElementById('query-label').innerText = queries.toLocaleString();
+      const monthly = (queries * 30 * 0.00003).toFixed(2);
+      document.getElementById('cost-label').innerText = `$${monthly}`;
+    }
+  </script>
+</body>
+</html>

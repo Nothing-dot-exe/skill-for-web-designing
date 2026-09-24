@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MORPHISMS // Category Theory, Functional Recursion &amp; Algebraic Geometry</title>
+
+  <!-- Curated Font Systems: Syne + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CANONICAL SYSTEM TOKENS (From anti-basic-web-design SKILL.md)
+       ========================================================================== */
+    :root {
+      --bg-base: #060609;
+      --bg-surface: #0e0e14;
+      --bg-surface-elevated: #151520;
+      --bg-glass: rgba(18, 18, 28, 0.72);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-specular: rgba(255, 255, 255, 0.22);
+      --border-highlight: rgba(0, 240, 255, 0.35);
+
+      --cyan: #00F0FF;
+      --violet: #A855F7;
+      --amber: #FFB800;
+      --emerald: #10B981;
+      --rose: #F43F5E;
+      --blue: #3B82F6;
+
+      --cyan-glow: rgba(0, 240, 255, 0.25);
+      --violet-glow: rgba(168, 85, 247, 0.25);
+
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Fluid Modular Typography (Ratio 1.333) */
+      --text-hero: clamp(2.4rem, 5.2vw + 1rem, 4.8rem);
+      --text-h1: clamp(1.8rem, 3.5vw + 0.5rem, 3rem);
+      --text-h2: clamp(1.4rem, 2vw + 0.4rem, 2rem);
+      --text-h3: clamp(1.15rem, 1.2vw + 0.3rem, 1.45rem);
+      --text-body: clamp(0.92rem, 0.3vw + 0.8rem, 1.05rem);
+      --text-micro: 0.72rem;
+
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+      /* Multi-Layer Bézier Diffused Shadows */
+      --shadow-diffuse:
+        0 2px 4px rgba(0, 0, 0, 0.04),
+        0 6px 12px rgba(0, 0, 0, 0.06),
+        0 14px 28px rgba(0, 0, 0, 0.08),
+        0 28px 56px rgba(0, 0, 0, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: #F0F0F8;
+      font-family: var(--font-body);
+      font-size: var(--text-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Zero-Asset Analog Noise Filter */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Ambient Spotlight Follower */
+    .spotlight-lens {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(850px circle at var(--cursor-x, 50vw) var(--cursor-y, 30vh), rgba(0, 240, 255, 0.06), transparent 70%),
+                  radial-gradient(650px circle at 80% 20%, rgba(168, 85, 247, 0.05), transparent 60%);
+    }
+
+    /* Sleek Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+    .master-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 24px 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       2. TOP BAR & SIGNATURE PILL
+       ========================================================================== */
+    .top-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 50px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-anchor {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-arrow-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: #000;
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    .brand-info h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-info span {
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      color: #8C8CA4;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .signature-pill-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-specular);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #A0A0BA;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .pulse-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+      animation: pulseAnim 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* ==========================================================================
+       3. HERO HEADER
+       ========================================================================== */
+    .hero-header {
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto 60px;
+    }
+
+    .category-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 99px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.12);
+    }
+
+    .hero-header h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-hero);
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #FFFFFF 25%, #9E9EBA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-header p.lead {
+      color: #9696AF;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      max-width: 740px;
+      margin: 0 auto 34px;
+    }
+
+    /* Mathematical Formula Marquee Banner */
+    .math-ribbon-wrap {
+      overflow: hidden;
+      padding: 12px 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      margin-bottom: 50px;
+    }
+
+    .math-ribbon-track {
+      display: flex;
+      gap: 40px;
+      width: max-content;
+      animation: scrollMath 30s linear infinite;
+    }
+
+    .math-ribbon-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollMath {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .math-token {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #A0A0B8;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .math-token strong {
+      color: var(--cyan);
+    }
+
+    /* ==========================================================================
+       4. INTERACTIVE COMMUTATIVE DIAGRAM SIMULATOR
+       ========================================================================== */
+    .interactive-stage-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--border-specular);
+      border-radius: 24px;
+      padding: 32px;
+      margin-bottom: 60px;
+      box-shadow: var(--shadow-diffuse);
+      backdrop-filter: blur(20px);
+    }
+
+    .stage-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .stage-head h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .stage-head span.sub {
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .diagram-interactive-wrap {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .diagram-interactive-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-container-box {
+      background: #040407;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      height: 380px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    #commutative-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .canvas-hud-hint {
+      position: absolute;
+      bottom: 14px;
+      left: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #6C6C82;
+      pointer-events: none;
+    }
+
+    /* Diagram Property Inspector Panel */
+    .inspector-panel {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .panel-group-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      color: #FFF;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge-morph {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      text-transform: uppercase;
+    }
+
+    .equation-display {
+      background: #08080C;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .property-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: #A0A0B8;
+    }
+
+    .property-checklist li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prop-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .btn-test-action {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .btn-test-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--violet-glow);
+      filter: brightness(1.1);
+    }
+
+    .btn-test-action:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* ==========================================================================
+       5. FILTERABLE THREE-TIER MORPHISM BENTO SHOWCASE
+       ========================================================================== */
+    .controls-shelf-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(16px);
+    }
+
+    .search-box-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-input-field {
+      width: 100%;
+      padding: 11px 16px 11px 40px;
+      border-radius: 99px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      color: #FFF;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .search-input-field:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    .search-icon-svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #727288;
+      pointer-events: none;
+    }
+
+    .filter-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-btn-pill {
+      padding: 8px 16px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: #8E8EA2;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .filter-btn-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    .filter-btn-pill.active {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    /* Bento Cards Grid */
+    .morphism-bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    .morphism-card {
+      grid-column: span 4;
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--border-specular);
+      box-shadow: var(--shadow-diffuse);
+      transition: transform 0.25s var(--ease-spring), border-color 0.25s ease, box-shadow 0.25s ease;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+
+    .morphism-card.span-8 { grid-column: span 8; }
+    .morphism-card.span-12 { grid-column: span 12; }
+
+    @media (max-width: 1024px) {
+      .morphism-card, .morphism-card.span-8, .morphism-card.span-12 {
+        grid-column: span 12;
+      }
+    }
+
+    /* Laser Spotlight Dynamic Border */
+    .morphism-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(350px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(0, 240, 255, 0.35), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .morphism-card:hover::before { opacity: 1; }
+
+    .morphism-card:hover {
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .card-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .domain-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .badge-cat { background: rgba(0, 240, 255, 0.12); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .badge-fp { background: rgba(168, 85, 247, 0.12); color: var(--violet); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .badge-geom { background: rgba(255, 184, 0, 0.12); color: var(--amber); border: 1px solid rgba(255, 184, 0, 0.3); }
+
+    .morphism-id {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: #6C6C82;
+    }
+
+    .morphism-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #FFF;
+    }
+
+    .formula-badge {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .morphism-card p {
+      color: #9292A6;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+
+    .specs-chips-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .chip-item {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #8E8EA2;
+    }
+
+    .btn-inspect-morphism {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .btn-inspect-morphism:hover {
+      background: var(--cyan);
+      color: #000;
+      border-color: var(--cyan);
+      font-weight: 700;
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .btn-inspect-morphism:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* ==========================================================================
+       6. MASTER FOOTER WITH SIGNATURE
+       ========================================================================== */
+    footer {
+      margin-top: 100px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: #6C6C82;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .footer-left-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-signature-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFF;
+      font-weight: 700;
+    }
+
+    .footer-author-credit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-author-credit a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .footer-author-credit a:hover {
+      text-decoration: underline;
+    }
+
+    /* Floating Toast Dock */
+    #morphism-toast-dock {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 99999;
+    }
+
+    .morphism-toast-pill {
+      background: rgba(14, 14, 22, 0.92);
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      padding: 12px 18px;
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+      animation: toastSlideUp 0.25s var(--ease-spring);
+    }
+
+    @keyframes toastSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Cursor Lens -->
+  <div class="spotlight-lens"></div>
+
+  <div class="master-layout">
+    
+    <!-- Top Navigation -->
+    <nav class="top-nav-bar">
+      <a href="../../index.html" class="brand-anchor">
+        <div class="brand-arrow-box">→</div>
+        <div class="brand-info">
+          <h2>MORPHISMS // CATEGORY LAB</h2>
+          <span>Abstract Algebra, FP Recursion &amp; Algebraic Geometry</span>
+        </div>
+      </a>
+
+      <!-- Small Note: Designed by Antigravity -->
+      <div class="signature-pill-header">
+        <span class="pulse-indicator"></span>
+        <span>Designed &amp; Architected by <strong>Antigravity</strong> // Google DeepMind</span>
+      </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-header">
+      <div class="category-chip">Universal Categorical Arrow Simulator</div>
+      <h1>Morphisms &amp; Structural Maps</h1>
+      <p class="lead">
+        An interactive mathematical encyclopedia spanning Category Theory (Monomorphisms, Epimorphisms, Isomorphisms), Functional Recursion Schemes (Catamorphisms, Anamorphisms, Hylomorphisms), and Algebraic Geometry (Étale, Flat, Proper Morphisms).
+      </p>
+    </header>
+
+    <!-- Mathematical Formula Marquee Banner -->
+    <div class="math-ribbon-wrap">
+      <div class="math-ribbon-track">
+        <div class="math-token"><strong>Monomorphism:</strong> fu = fv ⟹ u = v</div>
+        <div class="math-token"><strong>Epimorphism:</strong> uf = vf ⟹ u = v</div>
+        <div class="math-token"><strong>Isomorphism:</strong> f ∘ g = id_B ∧ g ∘ f = id_A</div>
+        <div class="math-token"><strong>Endomorphism:</strong> f: A → A</div>
+        <div class="math-token"><strong>Automorphism:</strong> Aut(A) ≅ Iso(A, A)</div>
+        <div class="math-token"><strong>Homomorphism:</strong> ϕ(x · y) = ϕ(x) ∗ ϕ(y)</div>
+        <div class="math-token"><strong>Catamorphism:</strong> cata(alg) = alg ∘ fmap(cata(alg)) ∘ unfix</div>
+        <div class="math-token"><strong>Hylomorphism:</strong> hylo(alg, coalg) = cata(alg) ∘ ana(coalg)</div>
+        <div class="math-token"><strong>Étale Morphism:</strong> Flat + Unramified (Local Isomorphism)</div>
+        <div class="math-token"><strong>Proper Morphism:</strong> Universally Closed + Separated (Compact Analogue)</div>
+        <!-- Duplicate for loop -->
+        <div class="math-token"><strong>Monomorphism:</strong> fu = fv ⟹ u = v</div>
+        <div class="math-token"><strong>Epimorphism:</strong> uf = vf ⟹ u = v</div>
+        <div class="math-token"><strong>Isomorphism:</strong> f ∘ g = id_B ∧ g ∘ f = id_A</div>
+        <div class="math-token"><strong>Endomorphism:</strong> f: A → A</div>
+        <div class="math-token"><strong>Automorphism:</strong> Aut(A) ≅ Iso(A, A)</div>
+      </div>
+    </div>
+
+    <!-- Interactive Commutative Diagram Stage -->
+    <section class="interactive-stage-section">
+      <div class="stage-head">
+        <div>
+          <h2>Interactive Commutative Diagram</h2>
+          <p style="color: #8C8CA0; font-size: 0.88rem; margin-top: 4px;">Drag categorical objects A, B, C, D to inspect universal arrow composition.</p>
+        </div>
+        <span class="stage-head sub">CATEGORY: 𝐂𝐚𝐭 // ARROW VERIFICATION: COMMUTATIVE</span>
+      </div>
+
+      <div class="diagram-interactive-wrap">
+        <!-- Interactive Canvas -->
+        <div class="canvas-container-box">
+          <canvas id="commutative-canvas"></canvas>
+          <div class="canvas-hud-hint">● Click &amp; Drag Objects to Relocate // Hover Arrows to Inspect Mappings</div>
+        </div>
+
+        <!-- Property Inspector Panel -->
+        <div class="inspector-panel">
+          <div>
+            <div class="panel-group-title">
+              <span id="active-morphism-title">Composition Engine</span>
+              <span class="status-badge-morph" id="commutativity-status">Commutative</span>
+            </div>
+
+            <div class="equation-display" id="equation-readout">
+              g ∘ f = h : A → C
+            </div>
+
+            <ul class="property-checklist">
+              <li><span class="prop-check">✓</span> <span id="prop-1">Associativity: (h ∘ g) ∘ f = h ∘ (g ∘ f)</span></li>
+              <li><span class="prop-check">✓</span> <span id="prop-2">Identity Existence: f ∘ id_A = f</span></li>
+              <li><span class="prop-check">✓</span> <span id="prop-3">Cancellative Property: Left-cancellative</span></li>
+            </ul>
+          </div>
+
+          <button class="btn-test-action" onclick="verifyCommutativity()">
+            Verify Commutative Square ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Master Controls: Search & Category Filter Pills -->
+    <div class="controls-shelf-bar">
+      <div class="search-box-wrap">
+        <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="morphism-search" class="search-input-field" placeholder="Search morphisms (e.g. monomorphism, catamorphism, étale, proper)..." oninput="filterMorphisms()" />
+      </div>
+
+      <div class="filter-pills-row">
+        <button class="filter-btn-pill active" onclick="setMorphismDomain('all', this)">All Morphisms (15)</button>
+        <button class="filter-btn-pill" onclick="setMorphismDomain('cat', this)">Category Theory (6)</button>
+        <button class="filter-btn-pill" onclick="setMorphismDomain('fp', this)">Functional Programming (5)</button>
+        <button class="filter-btn-pill" onclick="setMorphismDomain('geom', this)">Algebraic Geometry (4)</button>
+      </div>
+    </div>
+
+    <!-- Morphism Bento Grid -->
+    <main class="morphism-bento-grid" id="morphisms-grid">
+
+      <!-- 01: Monomorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Monomorphism left cancellative injective category theory">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 01</span>
+          </div>
+          <h3>Monomorphism</h3>
+          <div class="formula-badge">fu = fv ⟹ u = v</div>
+          <p>
+            A morphism \(f: A \to B\) that is left-cancellative. In concrete categories like \(\mathbf{Set}\) and \(\mathbf{Grp}\), monomorphisms correspond strictly to injective (one-to-one) mappings.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Left-Cancellative</span>
+            <span class="chip-item">Injective in Set</span>
+            <span class="chip-item">Subobject Dual</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Monomorphism', 'fu = fv ⟹ u = v', 'Left-Cancellative / Injection', 523)">Inspect Monomorphism ➔</button>
+      </div>
+
+      <!-- 02: Epimorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Epimorphism right cancellative surjective category theory">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 02</span>
+          </div>
+          <h3>Epimorphism</h3>
+          <div class="formula-badge">uf = vf ⟹ u = v</div>
+          <p>
+            A morphism \(f: A \to B\) that is right-cancellative. In \(\mathbf{Set}\), epimorphisms are exactly surjective (onto) mappings; in \(\mathbf{Ring}\), the inclusion \(\mathbb{Z} \hookrightarrow \mathbb{Q}\) is non-surjective yet epic.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Right-Cancellative</span>
+            <span class="chip-item">Surjective in Set</span>
+            <span class="chip-item">Quotient Dual</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Epimorphism', 'uf = vf ⟹ u = v', 'Right-Cancellative / Surjection', 587)">Inspect Epimorphism ➔</button>
+      </div>
+
+      <!-- 03: Isomorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Isomorphism invertible two-sided inverse bijective">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 03</span>
+          </div>
+          <h3>Isomorphism</h3>
+          <div class="formula-badge">f ∘ g = id_B ∧ g ∘ f = id_A</div>
+          <p>
+            An invertible morphism possessing a unique two-sided inverse \(g = f^{-1}\). Objects with an isomorphism between them are structurally indistinguishable within the category.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Two-Sided Invertible</span>
+            <span class="chip-item">Bijective in Set</span>
+            <span class="chip-item">Equivalence of Form</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Isomorphism', 'f ∘ g = id_B ∧ g ∘ f = id_A', 'Two-Sided Invertible / Bijective', 659)">Inspect Isomorphism ➔</button>
+      </div>
+
+      <!-- 04: Endomorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Endomorphism self mapping A to A monoid">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 04</span>
+          </div>
+          <h3>Endomorphism</h3>
+          <div class="formula-badge">f: A → A</div>
+          <p>
+            A morphism from an object to itself. The collection \(\mathrm{End}(A)\) forms a monoid under composition with identity \(\mathrm{id}_A\), serving as the foundational model for discrete dynamical systems.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Domain = Codomain</span>
+            <span class="chip-item">Forms Monoid End(A)</span>
+            <span class="chip-item">State Transition</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Endomorphism', 'f: A → A', 'Internal Evolution / Monoid', 698)">Inspect Endomorphism ➔</button>
+      </div>
+
+      <!-- 05: Automorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Automorphism invertible endomorphism symmetry group">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 05</span>
+          </div>
+          <h3>Automorphism</h3>
+          <div class="formula-badge">Aut(A) = End(A) ∩ Iso(A, A)</div>
+          <p>
+            An endomorphism that is also an isomorphism. Under composition, the collection \(\mathrm{Aut}(A)\) forms a group—the symmetry group of the object, encoding geometric or algebraic invariant symmetries.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Invertible Self-Map</span>
+            <span class="chip-item">Forms Symmetry Group</span>
+            <span class="chip-item">Galois Group Foundation</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Automorphism', 'Aut(A) = End(A) ∩ Iso(A, A)', 'Symmetry Group / Self-Iso', 784)">Inspect Automorphism ➔</button>
+      </div>
+
+      <!-- 06: Homomorphism (Category Theory) -->
+      <div class="morphism-card" data-domain="cat" data-title="Homomorphism algebraic structure preserving mapping">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-cat">Category Theory</span>
+            <span class="morphism-id">CAT // 06</span>
+          </div>
+          <h3>Homomorphism</h3>
+          <div class="formula-badge">ϕ(x · y) = ϕ(x) ∗ ϕ(y)</div>
+          <p>
+            A structure-preserving map between algebraic objects (groups, rings, vector spaces). Commutes with all algebraic operations: \(\phi(e_G) = e_H\) and \(\phi(x^{-1}) = \phi(x)^{-1}\).
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Operation-Preserving</span>
+            <span class="chip-item">Kernel &amp; Image Dual</span>
+            <span class="chip-item">First Isomorphism Theorem</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Homomorphism', 'ϕ(x · y) = ϕ(x) ∗ ϕ(y)', 'Algebraic Invariant Preserving', 880)">Inspect Homomorphism ➔</button>
+      </div>
+
+      <!-- 07: Catamorphism (Functional Programming - Span 8) -->
+      <div class="morphism-card span-8" data-domain="fp" data-title="Catamorphism fold recursion scheme initial algebra">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-fp">Functional Recursion Scheme</span>
+            <span class="morphism-id">FP // 01</span>
+          </div>
+          <h3 style="font-size: 1.6rem;">Catamorphism (The Universal Fold)</h3>
+          <div class="formula-badge">cata(alg) : Fix(F) → A = alg ∘ fmap(cata(alg)) ∘ unfix</div>
+          <p>
+            The generalized abstraction of recursion over inductive algebraic data structures (folds). A catamorphism is the unique homomorphism from an initial algebra to any target algebra, tearing down a data structure bottom-up into a scalar summary.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Initial F-Algebra Homomorphism</span>
+            <span class="chip-item">Generalizes List Foldr</span>
+            <span class="chip-item">Guaranteed Termination</span>
+            <span class="chip-item">Structural Induction</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Catamorphism', 'cata(alg) = alg ∘ fmap(cata(alg)) ∘ unfix', 'Universal Fold / F-Algebra', 987)">Inspect Catamorphism ➔</button>
+      </div>
+
+      <!-- 08: Anamorphism (Functional Programming) -->
+      <div class="morphism-card" data-domain="fp" data-title="Anamorphism unfold corecursion final coalgebra">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-fp">Functional Recursion Scheme</span>
+            <span class="morphism-id">FP // 02</span>
+          </div>
+          <h3>Anamorphism (Unfold)</h3>
+          <div class="formula-badge">ana(coalg) : A → Fix(F)</div>
+          <p>
+            The categorical dual of a catamorphism. Generates (unfolds) potentially infinite corecursive data structures from an initial seed state via a final coalgebra.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Final Coalgebra Dual</span>
+            <span class="chip-item">Generalizes Unfold</span>
+            <span class="chip-item">Stream Generation</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Anamorphism', 'ana(coalg) = fix ∘ fmap(ana(coalg)) ∘ coalg', 'Universal Unfold / Coalgebra', 1046)">Inspect Anamorphism ➔</button>
+      </div>
+
+      <!-- 09: Hylomorphism (Functional Programming) -->
+      <div class="morphism-card" data-domain="fp" data-title="Hylomorphism deforestation composition fold unfold">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-fp">Functional Recursion Scheme</span>
+            <span class="morphism-id">FP // 03</span>
+          </div>
+          <h3>Hylomorphism</h3>
+          <div class="formula-badge">hylo = cata(alg) ∘ ana(coalg)</div>
+          <p>
+            An anamorphism followed directly by a catamorphism. By the Deforestation Theorem, the intermediate recursive data structure is completely optimized away at compile time without allocating memory.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Compositional Fusion</span>
+            <span class="chip-item">Deforestation Optimization</span>
+            <span class="chip-item">Zero Memory Heap Spikes</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Hylomorphism', 'hylo(alg, coalg) = cata(alg) ∘ ana(coalg)', 'Deforested Pipeline Fusion', 1174)">Inspect Hylomorphism ➔</button>
+      </div>
+
+      <!-- 10: Paramorphism (Functional Programming) -->
+      <div class="morphism-card" data-domain="fp" data-title="Paramorphism primitive recursion subterm access">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-fp">Functional Recursion Scheme</span>
+            <span class="morphism-id">FP // 04</span>
+          </div>
+          <h3>Paramorphism</h3>
+          <div class="formula-badge">para : Fix(F) → A</div>
+          <p>
+            An extension of the catamorphism modeling primitive recursion. At each deconstructive evaluation step, the algebra retains access to both the computed accumulator and the original unreduced sub-term.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Primitive Recursion</span>
+            <span class="chip-item">Retains Sub-Term Context</span>
+            <span class="chip-item">Factorial &amp; Tails</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Paramorphism', 'para(alg) : Fix(F) → A', 'Primitive Recursion + Context', 1318)">Inspect Paramorphism ➔</button>
+      </div>
+
+      <!-- 11: Apomorphism (Functional Programming) -->
+      <div class="morphism-card" data-domain="fp" data-title="Apomorphism short circuit corecursion">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-fp">Functional Recursion Scheme</span>
+            <span class="morphism-id">FP // 05</span>
+          </div>
+          <h3>Apomorphism</h3>
+          <div class="formula-badge">apo : A → Fix(F)</div>
+          <p>
+            The dual of a paramorphism. Models corecursive unfolding with short-circuiting: at any step, the coalgebra can choose to immediately terminate recursion by emitting an existing sub-tree.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Short-Circuit Unfold</span>
+            <span class="chip-item">Early Exit Corecursion</span>
+            <span class="chip-item">Stream Insertion</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Apomorphism', 'apo(coalg) : A → Fix(F)', 'Short-Circuiting Corecursion', 1396)">Inspect Apomorphism ➔</button>
+      </div>
+
+      <!-- 12: Étale Morphism (Algebraic Geometry - Span 8) -->
+      <div class="morphism-card span-8" data-domain="geom" data-title="Étale Morphism flat unramified local isomorphism Grothendieck">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-geom">Algebraic Geometry</span>
+            <span class="morphism-id">GEOM // 01</span>
+          </div>
+          <h3 style="font-size: 1.6rem;">Étale Morphism (Local Isomorphisms)</h3>
+          <div class="formula-badge">f: X → Y is Étale ⟺ Flat ∧ Unramified (Ω_{X/Y}^1 = 0)</div>
+          <p>
+            The algebraic geometry analogue of local biholomorphisms or smooth unbranched covering spaces in differential topology. An étale morphism has zero differential sheaf (\(\Omega_{X/Y}^1 = 0\)) and flat fibers, serving as the basis for Grothendieck's Étale Cohomology.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Flat + Unramified</span>
+            <span class="chip-item">Algebraic Covering Map</span>
+            <span class="chip-item">Étale Site (Grothendieck)</span>
+            <span class="chip-item">Weil Conjectures Proof</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Étale Morphism', 'Flat ∧ Unramified (Ω_{X/Y}^1 = 0)', 'Algebraic Covering / Grothendieck Site', 1567)">Inspect Étale Morphism ➔</button>
+      </div>
+
+      <!-- 13: Flat Morphism (Algebraic Geometry) -->
+      <div class="morphism-card" data-domain="geom" data-title="Flat Morphism continuous algebraic family Tor zero">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-geom">Algebraic Geometry</span>
+            <span class="morphism-id">GEOM // 02</span>
+          </div>
+          <h3>Flat Morphism</h3>
+          <div class="formula-badge">Tor_1(O_X, -) = 0</div>
+          <p>
+            A morphism where fibers vary continuously without sudden dimensional jumps or algebraic catastrophes. Makes the structure sheaf \(\mathcal{O}_X\) a flat module over \(\mathcal{O}_Y\).
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Continuous Family</span>
+            <span class="chip-item">No Fiber Jumps</span>
+            <span class="chip-item">Hilbert Schemes Foundation</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Flat Morphism', 'Tor_1(O_X, -) = 0', 'Continuous Fiber Deformation', 1661)">Inspect Flat Morphism ➔</button>
+      </div>
+
+      <!-- 14: Proper Morphism (Algebraic Geometry) -->
+      <div class="morphism-card" data-domain="geom" data-title="Proper Morphism universally closed separated compact analogue">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-geom">Algebraic Geometry</span>
+            <span class="morphism-id">GEOM // 03</span>
+          </div>
+          <h3>Proper Morphism</h3>
+          <div class="formula-badge">Universally Closed ∧ Separated</div>
+          <p>
+            The scheme-theoretic analogue of compact Hausdorff mappings in topology. Remains closed under arbitrary base change (\(X \times_Y Z \to Z\) is closed for all \(Z\)), satisfying the Valuative Criterion of Properness.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Universally Closed</span>
+            <span class="chip-item">Valuative Criterion</span>
+            <span class="chip-item">Compactness Analogue</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Proper Morphism', 'Universally Closed ∧ Separated', 'Algebraic Compactness Analogue', 1760)">Inspect Proper Morphism ➔</button>
+      </div>
+
+      <!-- 15: Smooth Morphism (Algebraic Geometry) -->
+      <div class="morphism-card" data-domain="geom" data-title="Smooth Morphism submersion flat smooth fibers Jacobian">
+        <div>
+          <div class="card-top-meta">
+            <span class="domain-badge badge-geom">Algebraic Geometry</span>
+            <span class="morphism-id">GEOM // 04</span>
+          </div>
+          <h3>Smooth Morphism</h3>
+          <div class="formula-badge">Flat ∧ Smooth Fibers (Rank J = Dim)</div>
+          <p>
+            The algebraic analogue of differential submersions. A flat morphism whose geometric fibers are all non-singular varieties of constant dimension, satisfying the infinitesimal lifting criterion.
+          </p>
+          <div class="specs-chips-list">
+            <span class="chip-item">Submersion Analogue</span>
+            <span class="chip-item">Locally Trivial Topology</span>
+            <span class="chip-item">Deformation Invariance</span>
+          </div>
+        </div>
+        <button class="btn-inspect-morphism" onclick="selectMorphismDetails('Smooth Morphism', 'Flat ∧ Smooth Fibers (Full Rank Jacobian)', 'Algebraic Differential Submersion', 1975)">Inspect Smooth Morphism ➔</button>
+      </div>
+
+    </main>
+
+    <!-- Master Footer with Discrete Signature Note -->
+    <footer>
+      <div class="footer-left-meta">
+        <span class="badge-signature-pill">ANTIGRAVITY // DIGITAL LAB</span>
+        <span>Universal Categorical Morphism Engine // 2026</span>
+      </div>
+
+      <!-- Small Note: Designed by Antigravity -->
+      <div class="footer-author-credit">
+        <span>Designed &amp; Architected by <a href="../../index.html">Antigravity</a> // Google DeepMind Agentic Coding</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Floating Toast Dock -->
+  <div id="morphism-toast-dock"></div>
+
+  <!-- Interactive Diagram Canvas Script & Web Audio Synthesizer -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. Mouse Spotlight Tracker
+    // -------------------------------------------------------------------------
+    window.addEventListener('mousemove', (e) => {
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+    });
+
+    // -------------------------------------------------------------------------
+    // 2. 3D Tilt & Dynamic Spotlight on Bento Cards
+    // -------------------------------------------------------------------------
+    document.querySelectorAll('.morphism-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotX = ((y - centerY) / centerY) * -5;
+        const rotY = ((x - centerX) / centerX) * 5;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.015, 1.015, 1.015)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+
+    // -------------------------------------------------------------------------
+    // 3. Web Audio Synthesizer Harmonic Engine
+    // -------------------------------------------------------------------------
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playMorphismTone(freq = 659) {
+      try {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } catch (e) {}
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Interactive Commutative Diagram Canvas
+    // -------------------------------------------------------------------------
+    const canvas = document.getElementById('commutative-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      drawDiagram();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Categorical Objects (Nodes)
+    const nodes = [
+      { id: 'A', x: 120, y: 100, label: 'Object A', radius: 26, color: '#00F0FF' },
+      { id: 'B', x: 380, y: 100, label: 'Object B', radius: 26, color: '#A855F7' },
+      { id: 'C', x: 380, y: 280, label: 'Object C', radius: 26, color: '#10B981' },
+      { id: 'D', x: 120, y: 280, label: 'Object D', radius: 26, color: '#FFB800' }
+    ];
+
+    // Morphism Arrows
+    const arrows = [
+      { from: 'A', to: 'B', label: 'f', color: '#00F0FF' },
+      { from: 'B', to: 'C', label: 'g', color: '#A855F7' },
+      { from: 'A', to: 'C', label: 'g ∘ f = h', color: '#10B981', dashed: true },
+      { from: 'A', to: 'D', label: 'u', color: '#FFB800' },
+      { from: 'D', to: 'C', label: 'v', color: '#F43F5E' }
+    ];
+
+    let draggedNode = null;
+
+    function drawArrow(x1, y1, x2, y2, label, color, dashed = false) {
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const headLen = 10;
+      const nodeR = 26;
+
+      const startX = x1 + Math.cos(angle) * nodeR;
+      const startY = y1 + Math.sin(angle) * nodeR;
+      const endX = x2 - Math.cos(angle) * (nodeR + 6);
+      const endY = y2 - Math.sin(angle) * (nodeR + 6);
+
+      ctx.beginPath();
+      if (dashed) ctx.setLineDash([6, 6]);
+      else ctx.setLineDash([]);
+
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      // Arrowhead
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), endY - headLen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), endY - headLen * Math.sin(angle + Math.PI / 6));
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Label
+      const midX = (startX + endX) / 2 + Math.cos(angle - Math.PI / 2) * 14;
+      const midY = (startY + endY) / 2 + Math.sin(angle - Math.PI / 2) * 14;
+      ctx.font = '600 13px "JetBrains Mono", monospace';
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, midX, midY);
+    }
+
+    function drawDiagram() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Arrows first
+      arrows.forEach(arr => {
+        const n1 = nodes.find(n => n.id === arr.from);
+        const n2 = nodes.find(n => n.id === arr.to);
+        if (n1 && n2) {
+          drawArrow(n1.x, n1.y, n2.x, n2.y, arr.label, arr.color, arr.dashed);
+        }
+      });
+
+      // Draw Nodes
+      nodes.forEach(node => {
+        // Outer halo
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius + 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.fill();
+
+        // Node circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#0E0E14';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = node.color;
+        ctx.stroke();
+
+        // Node ID
+        ctx.font = '800 15px "Syne", sans-serif';
+        ctx.fillStyle = '#FFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.id, node.x, node.y);
+      });
+    }
+
+    // Drag-and-Drop Node Logic
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      nodes.forEach(node => {
+        const d = Math.hypot(mx - node.x, my - node.y);
+        if (d < node.radius) {
+          draggedNode = node;
+          playMorphismTone(880);
+        }
+      });
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!draggedNode) return;
+      const rect = canvas.getBoundingClientRect();
+      draggedNode.x = Math.max(30, Math.min(canvas.width - 30, e.clientX - rect.left));
+      draggedNode.y = Math.max(30, Math.min(canvas.height - 30, e.clientY - rect.top));
+      drawDiagram();
+    });
+
+    window.addEventListener('mouseup', () => {
+      draggedNode = null;
+    });
+
+    setTimeout(resizeCanvas, 100);
+
+    // -------------------------------------------------------------------------
+    // 5. Interactive Verification & Inspection
+    // -------------------------------------------------------------------------
+    function selectMorphismDetails(title, formula, properties, freq) {
+      document.getElementById('active-morphism-title').innerText = title;
+      document.getElementById('equation-readout').innerText = formula;
+      document.getElementById('prop-1').innerText = `Primary Axiom: ${properties}`;
+      playMorphismTone(freq);
+      showMorphismToast(`Selected ${title}: Loaded into universal arrow simulator.`);
+    }
+
+    function verifyCommutativity() {
+      playMorphismTone(987);
+      showMorphismToast('✓ Commutative Property Verified: g ∘ f = v ∘ u : A → C in Category Cat');
+      const badge = document.getElementById('commutativity-status');
+      badge.innerText = 'Verified 100%';
+      badge.style.background = 'rgba(16, 185, 129, 0.2)';
+      badge.style.borderColor = 'var(--emerald)';
+      badge.style.color = 'var(--emerald)';
+    }
+
+    function showMorphismToast(msg) {
+      const dock = document.getElementById('morphism-toast-dock');
+      const toast = document.createElement('div');
+      toast.className = 'morphism-toast-pill';
+      toast.innerText = msg;
+      dock.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 2800);
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Search & Domain Filtering
+    // -------------------------------------------------------------------------
+    let activeDomain = 'all';
+
+    function setMorphismDomain(domain, btn) {
+      activeDomain = domain;
+      document.querySelectorAll('.filter-btn-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterMorphisms();
+    }
+
+    function filterMorphisms() {
+      const query = document.getElementById('morphism-search').value.toLowerCase();
+      document.querySelectorAll('.morphism-card').forEach(card => {
+        const domain = card.dataset.domain;
+        const title = (card.dataset.title || '').toLowerCase();
+        const matchesQuery = title.includes(query);
+        const matchesDomain = (activeDomain === 'all') || (domain === activeDomain);
+        card.style.display = (matchesQuery && matchesDomain) ? 'flex' : 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>

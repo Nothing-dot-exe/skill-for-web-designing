@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AETHER // Neural Spatial Synthesizer & Sound Engine</title>
+  
+  <!-- Curated Fonts: Syne + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Three.js for Pure 3D WebGL Hero Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & SYSTEM VARIABLES (Adhering strictly to SKILL.md)
+       ========================================================================== */
+    :root {
+      /* Typography Hierarchy */
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Fluid Typography Scale */
+      --text-hero: clamp(2.8rem, 6.5vw + 1rem, 5.8rem);
+      --text-h1: clamp(2.2rem, 4vw + 0.5rem, 3.4rem);
+      --text-h2: clamp(1.4rem, 2.2vw + 0.5rem, 2.1rem);
+      --text-h3: clamp(1.1rem, 1.2vw + 0.5rem, 1.45rem);
+      --text-body: clamp(0.92rem, 0.4vw + 0.8rem, 1.05rem);
+      --text-micro: 0.72rem;
+
+      /* Letter Spacing & Line Height */
+      --tracking-tight: -0.04em;
+      --tracking-wide: 0.18em;
+      --leading-snug: 1.08;
+      --leading-relaxed: 1.65;
+
+      /* Color Tokens (Linear Dark Craft + Electric Amber & Cyan Accents) */
+      --bg-base: #070709;
+      --bg-surface: #0e0e13;
+      --bg-surface-elevated: #15151c;
+      --bg-glass: rgba(18, 18, 26, 0.65);
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.18);
+      --border-highlight: rgba(255, 107, 0, 0.4);
+
+      --accent-primary: #FF6B00;
+      --accent-cyan: #00F0FF;
+      --accent-glow: rgba(255, 107, 0, 0.28);
+      --accent-cyan-glow: rgba(0, 240, 255, 0.25);
+      
+      --text-primary: #F4F4F6;
+      --text-secondary: #9090A2;
+      --text-muted: #565666;
+
+      /* Animation Physics */
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-standard: all 0.25s var(--ease-spring);
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: var(--text-body);
+      line-height: var(--leading-relaxed);
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      selection-background-color: var(--accent-primary);
+    }
+
+    ::selection {
+      background: var(--accent-primary);
+      color: #000;
+    }
+
+    /* Custom Sleek Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       2. BACKGROUND MAGIC (Noise Texture & Interactive Cursor Spotlight)
+       ========================================================================== */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.038;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 9999;
+    }
+
+    /* Mouse Flashlight Tracking Effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(700px circle at var(--cursor-x, 50vw) var(--cursor-y, 50vh), rgba(255, 107, 0, 0.05), transparent 75%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & FLOATING STATUS BAR
+       ========================================================================== */
+    nav.navbar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 1240px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(14, 14, 19, 0.7);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      z-index: 1000;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-primary), #FF2E00);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-mark svg {
+      width: 16px;
+      height: 16px;
+      fill: #fff;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cmd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition-standard);
+    }
+
+    .cmd-badge:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent-primary);
+      color: #fff;
+    }
+
+    .cmd-key {
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    /* Glowing Action Button */
+    .btn-glow {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #22222d 0%, #111116 100%);
+      color: #fff;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.88rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 18px var(--accent-glow), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-standard);
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 30px var(--accent-glow), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-glow:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    /* ==========================================================================
+       4. HERO SECTION WITH 3D WEBGL CANVAS
+       ========================================================================== */
+    .hero-section {
+      position: relative;
+      min-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 140px 24px 60px;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    #webgl-canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(255, 107, 0, 0.08);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      box-shadow: 0 0 8px var(--accent-primary);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: var(--text-hero);
+      font-weight: 800;
+      letter-spacing: var(--tracking-tight);
+      line-height: var(--leading-snug);
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #FFFFFF 30%, #8D8D9E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 1.2vw + 0.6rem, 1.3rem);
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid var(--border-subtle);
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-standard);
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(1px);
+    }
+
+    /* ==========================================================================
+       5. INFINITE LIVE MARQUEE TICKER
+       ========================================================================== */
+    .marquee-container {
+      width: 100%;
+      overflow: hidden;
+      background: rgba(14, 14, 19, 0.85);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 0;
+      position: relative;
+      z-index: 10;
+      display: flex;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      width: max-content;
+      animation: marquee-scroll 24s linear infinite;
+    }
+
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .telemetry-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .telemetry-item strong {
+      color: #fff;
+    }
+
+    .telemetry-tag {
+      color: var(--accent-cyan);
+    }
+
+    /* ==========================================================================
+       6. THE ASYMMETRIC BENTO GRID ARCHITECTURE
+       ========================================================================== */
+    .section-wrap {
+      max-width: 1240px;
+      margin: 90px auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h2);
+      font-weight: 700;
+      letter-spacing: var(--tracking-tight);
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .bento-card {
+      position: relative;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s var(--ease-spring), border-color 0.25s ease, box-shadow 0.25s ease;
+      transform-style: preserve-3d;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Dynamic Radial Spotlight Border */
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(350px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255, 107, 0, 0.5), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .bento-card:hover::before {
+      opacity: 1;
+    }
+
+    .bento-card:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Asymmetric Spans */
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    .span-12 { grid-column: span 12; }
+    .span-6 { grid-column: span 6; }
+
+    @media (max-width: 960px) {
+      .span-8, .span-4, .span-6 {
+        grid-column: span 12;
+      }
+    }
+
+    /* Bento Card Content Elements */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h3);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Interactive Mini Synthesizer Widget inside Bento Card */
+    .synth-pad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .synth-pad {
+      height: 64px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .synth-pad:hover {
+      background: rgba(255, 107, 0, 0.15);
+      border-color: var(--accent-primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .synth-pad:active, .synth-pad.active {
+      transform: scale(0.95);
+      background: var(--accent-primary);
+      color: #000;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* Live Audio Frequency Visualizer Canvas */
+    .visualizer-box {
+      width: 100%;
+      height: 90px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      margin-top: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas#freqCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Tactile Toggle Switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      margin-top: 16px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch.checked {
+      background: var(--accent-primary);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 22px; height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toggle-switch.checked .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    /* ==========================================================================
+       7. INTERACTIVE FILTER & CATALOG (Real Client-Side State & Search)
+       ========================================================================== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      padding: 8px 18px;
+      border-radius: 99px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-standard);
+    }
+
+    .pill-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .pill-btn.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+      font-weight: 700;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      min-width: 260px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 38px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 99px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition-standard);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      fill: var(--text-muted);
+    }
+
+    /* Sound Preset Catalog Grid */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .preset-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-standard);
+    }
+
+    .preset-card:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+    }
+
+    .preset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .preset-tag {
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      color: var(--accent-cyan);
+    }
+
+    .bookmark-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+    }
+
+    .bookmark-btn:hover, .bookmark-btn.saved {
+      color: var(--accent-primary);
+      transform: scale(1.15);
+    }
+
+    .preset-name {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .preset-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .btn-play-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 99px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: var(--transition-standard);
+    }
+
+    .btn-play-preview:hover {
+      background: var(--accent-primary);
+      color: #000;
+      border-color: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       8. COMMAND PALETTE (CMD+K / CTRL+K MODAL)
+       ========================================================================== */
+    .cmd-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 10000;
+    }
+
+    .cmd-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cmd-modal {
+      width: 100%;
+      max-width: 560px;
+      background: #111116;
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      transform: scale(0.94) translateY(15px);
+      transition: transform 0.25s var(--ease-spring);
+    }
+
+    .cmd-overlay.active .cmd-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .cmd-input-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 12px;
+    }
+
+    .cmd-input-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.05rem;
+      font-family: var(--font-body);
+      outline: none;
+    }
+
+    .cmd-results {
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .cmd-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .cmd-item:hover, .cmd-item.selected {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .cmd-footer {
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       9. FLOATING TOAST NOTIFICATION CONTAINER
+       ========================================================================== */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 11000;
+      pointer-events: none;
+    }
+
+    .toast-pill {
+      background: rgba(20, 20, 28, 0.9);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 3px solid var(--accent-primary);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      animation: toastIn 0.3s var(--ease-spring) forwards;
+      pointer-events: auto;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .toast-pill.hide {
+      opacity: 0;
+      transform: translateY(10px) scale(0.9);
+      transition: all 0.3s ease;
+    }
+
+    /* ==========================================================================
+       10. FOOTER & TELEMETRY
+       ========================================================================== */
+    footer.site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 60px 24px 40px;
+      max-width: 1240px;
+      margin: 120px auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Analog Noise Filter -->
+  <div class="noise-overlay"></div>
+
+  <!-- Floating Navigation Island -->
+  <nav class="navbar">
+    <a href="#" class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="brand-name">AETHER.IO</span>
+    </a>
+
+    <div class="nav-actions">
+      <div class="cmd-badge" onclick="toggleCmdPalette()">
+        <span>Search Presets</span>
+        <span class="cmd-key">Ctrl + K</span>
+      </div>
+      <button class="btn-glow" onclick="triggerAudioTest()">
+        <span>Activate Engine</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Pure 3D Three.js Geometry -->
+  <section class="hero-section">
+    <div id="webgl-canvas-container"></div>
+
+    <div class="hero-content">
+      <div class="meta-chip">
+        <span class="live-dot"></span>
+        <span>AETHER ENGINE v4.2 // SPATIAL DSP CLUSTER</span>
+      </div>
+
+      <h1 class="hero-title">BEYOND 2D AUDIO.<br>SPATIAL SOUND CRAFT.</h1>
+      <p class="hero-subtitle">
+        High-precision neural audio synthesis with sub-millisecond impulse responses and real-time physical resonance modeling.
+      </p>
+
+      <div class="hero-cta-group">
+        <button class="btn-glow" onclick="triggerAudioTest()">
+          <span>Initialize Synthesizer</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-secondary" onclick="toggleCmdPalette()">
+          <span>Browse 128 Presets</span>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-cyan);">[Cmd+K]</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Infinite Live Telemetry Marquee -->
+  <div class="marquee-container">
+    <div class="marquee-track">
+      <div class="telemetry-item"><span class="telemetry-tag">LATENCY:</span> <strong>0.38ms</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">SAMPLING:</span> <strong>192kHz / 64-bit Float</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">DSP CLUSTER:</span> <strong>Tokyo-East-01 [ACTIVE]</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">NEURAL MODEL:</span> <strong>Resonance-X9</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">HARMONIC DISTORTION:</span> <strong>0.00004% THD</strong></div>
+      <!-- Duplicate for seamless loop -->
+      <div class="telemetry-item"><span class="telemetry-tag">LATENCY:</span> <strong>0.38ms</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">SAMPLING:</span> <strong>192kHz / 64-bit Float</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">DSP CLUSTER:</span> <strong>Tokyo-East-01 [ACTIVE]</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">NEURAL MODEL:</span> <strong>Resonance-X9</strong></div>
+      <div class="telemetry-item"><span class="telemetry-tag">HARMONIC DISTORTION:</span> <strong>0.00004% THD</strong></div>
+    </div>
+  </div>
+
+  <!-- The Asymmetric Bento Grid Section -->
+  <section class="section-wrap">
+    <div class="section-header">
+      <div>
+        <div class="card-badge" style="margin-bottom: 8px;">CORE ARCHITECTURE</div>
+        <h2 class="section-title">Tactile Neural Synthesizer</h2>
+      </div>
+      <p style="color: var(--text-secondary); max-width: 420px; font-size: 0.9rem;">
+        Interact with the live oscillators below. Click any pad to trigger realtime Web Audio synthesizer voices.
+      </p>
+    </div>
+
+    <div class="bento-grid">
+      
+      <!-- Bento Card 1: Interactive Synth Pads (Span 8) -->
+      <div class="bento-card span-8 tilt-card">
+        <div>
+          <div class="card-meta">
+            <span class="card-badge">LIVE PLAYABLE HARDWARE</span>
+            <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary);">POLYPHONY: 8-VOICE</span>
+          </div>
+          <h3 class="card-title">Polyphonic Frequency Generator</h3>
+          <p class="card-desc">
+            Trigger individual physical-modeling micro-voices. Each key triggers synthesized sine-saw waveforms dynamically calculated in browser.
+          </p>
+
+          <div class="synth-pad-grid">
+            <div class="synth-pad" onclick="playSynthFrequency(220, 'A3', this)">
+              <strong>A3</strong>
+              <span>220 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(261.63, 'C4', this)">
+              <strong>C4</strong>
+              <span>261 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(329.63, 'E4', this)">
+              <strong>E4</strong>
+              <span>329 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(392.00, 'G4', this)">
+              <strong>G4</strong>
+              <span>392 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(440.00, 'A4', this)">
+              <strong>A4</strong>
+              <span>440 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(523.25, 'C5', this)">
+              <strong>C5</strong>
+              <span>523 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(659.25, 'E5', this)">
+              <strong>E5</strong>
+              <span>659 Hz</span>
+            </div>
+            <div class="synth-pad" onclick="playSynthFrequency(783.99, 'G5', this)">
+              <strong>G5</strong>
+              <span>784 Hz</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="visualizer-box">
+          <canvas id="freqCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Bento Card 2: Spatial Impulse Chamber (Span 4) -->
+      <div class="bento-card span-4 tilt-card">
+        <div>
+          <div class="card-meta">
+            <span class="card-badge">HRTF SPATIALIZER</span>
+          </div>
+          <h3 class="card-title">Acoustic Sphere</h3>
+          <p class="card-desc">
+            Binaural room acoustic calculations configured for head-related transfer functions (HRTF).
+          </p>
+
+          <div class="toggle-row">
+            <div>
+              <strong style="display: block; font-size: 0.9rem;">Binaural Panning</strong>
+              <small style="color: var(--text-muted); font-family: var(--font-mono);">360° Soundstage</small>
+            </div>
+            <div class="toggle-switch checked" onclick="toggleSwitch(this, 'Binaural 360° Panning')">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <strong style="display: block; font-size: 0.9rem;">Analog Saturation</strong>
+              <small style="color: var(--text-muted); font-family: var(--font-mono);">Tape Saturation Tube</small>
+            </div>
+            <div class="toggle-switch" onclick="toggleSwitch(this, 'Analog Saturation Tube')">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <button class="btn-glow" style="width: 100%; justify-content: center;" onclick="showToast('Acoustic Impulse Loaded: Cathedral Reverberation')">
+            Load Impulse Response
+          </button>
+        </div>
+      </div>
+
+      <!-- Bento Card 3: Neural Latency Matrix (Span 4) -->
+      <div class="bento-card span-4 tilt-card">
+        <div>
+          <div class="card-meta">
+            <span class="card-badge">ZERO-JITTER CORE</span>
+          </div>
+          <h3 class="card-title">Phase Cancellation Guard</h3>
+          <p class="card-desc">
+            Automated micro-delay alignment eliminates comb-filtering across multi-mic acoustic arrays.
+          </p>
+        </div>
+        <div style="margin-top: 24px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--border-subtle); font-family: var(--font-mono); font-size: 0.8rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--text-muted);">PHASE CORRELATION</span>
+            <span style="color: var(--accent-cyan);">+0.98 [STABLE]</span>
+          </div>
+          <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden;">
+            <div style="height: 100%; width: 98%; background: var(--accent-cyan);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Card 4: Audio Cloud Sync (Span 8) -->
+      <div class="bento-card span-8 tilt-card">
+        <div class="card-meta">
+          <span class="card-badge">SESSION VAULT</span>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: #fff;">SAVED PRESETS: <strong id="saved-counter" style="color: var(--accent-primary);">0</strong></span>
+        </div>
+        <h3 class="card-title">Direct Cloud Snapshot Sync</h3>
+        <p class="card-desc">
+          Presets are serialized with full oscillator states, filter slopes, and resonance topologies saved directly to your browser's persistent storage.
+        </p>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+          <button class="btn-secondary" onclick="exportState()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            <span>Export Configuration JSON</span>
+          </button>
+          <button class="btn-secondary" onclick="clearSavedFavorites()">
+            <span>Reset Local Registry</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Preset Catalog & Live Real-Time Search -->
+  <section class="section-wrap">
+    <div class="section-header">
+      <div>
+        <div class="card-badge" style="margin-bottom: 8px;">RESONANCE PRESETS</div>
+        <h2 class="section-title">Harmonic Sound Catalog</h2>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-pills">
+          <button class="pill-btn active" data-cat="all" onclick="filterCategory('all', this)">All Ensembles</button>
+          <button class="pill-btn" data-cat="ambient" onclick="filterCategory('ambient', this)">Ambient Void</button>
+          <button class="pill-btn" data-cat="cyber" onclick="filterCategory('cyber', this)">Cyber Bass</button>
+          <button class="pill-btn" data-cat="organic" onclick="filterCategory('organic', this)">Organic Wood</button>
+        </div>
+
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="preset-search" class="search-input" placeholder="Search timbre, frequency, or tag..." oninput="handleSearch()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Catalog Items Grid -->
+    <div class="preset-grid" id="preset-container">
+      
+      <div class="preset-card catalog-item" data-title="Solaris Pad 09" data-category="ambient">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">AMBIENT // VOID</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Solaris Pad 09', this)">★</button>
+          </div>
+          <h4 class="preset-name">Solaris Pad 09</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Warm organic brass wash with granular pitch drift and cathedral reverberation.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">432 Hz Warm</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(220, 'Solaris Pad 09')">Preview Tone</button>
+        </div>
+      </div>
+
+      <div class="preset-card catalog-item" data-title="Neuro Sub Infrasonic" data-category="cyber">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">CYBER // BASS</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Neuro Sub Infrasonic', this)">★</button>
+          </div>
+          <h4 class="preset-name">Neuro Sub Infrasonic</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Distorted pulse-width sub bass modulated through analog Moog 24dB ladder filters.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">55 Hz Sub</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(110, 'Neuro Sub')">Preview Tone</button>
+        </div>
+      </div>
+
+      <div class="preset-card catalog-item" data-title="Nordic Cello Resonance" data-category="organic">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">ORGANIC // WOOD</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Nordic Cello Resonance', this)">★</button>
+          </div>
+          <h4 class="preset-name">Nordic Cello Resonance</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Acoustic string friction model simulating spruce wood body vibrations.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Bowed A2</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(174.61, 'Nordic Cello')">Preview Tone</button>
+        </div>
+      </div>
+
+      <div class="preset-card catalog-item" data-title="Starlight Glass Arp" data-category="ambient">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">AMBIENT // PLUCK</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Starlight Glass Arp', this)">★</button>
+          </div>
+          <h4 class="preset-name">Starlight Glass Arp</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Crystalline bell harmonics with stereophonic ping-pong delay reflections.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Crystal E5</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(659.25, 'Glass Arp')">Preview Tone</button>
+        </div>
+      </div>
+
+      <div class="preset-card catalog-item" data-title="Obsidian Warp Drone" data-category="cyber">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">CYBER // DRONE</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Obsidian Warp Drone', this)">★</button>
+          </div>
+          <h4 class="preset-name">Obsidian Warp Drone</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Granular frequency shifting running through dual waveshapers and flangers.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Drop-D Saw</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(146.83, 'Obsidian Warp')">Preview Tone</button>
+        </div>
+      </div>
+
+      <div class="preset-card catalog-item" data-title="Bamboo Marimba Chime" data-category="organic">
+        <div>
+          <div class="preset-header">
+            <span class="preset-tag">ORGANIC // PERCUSSION</span>
+            <button class="bookmark-btn" onclick="toggleBookmark('Bamboo Marimba Chime', this)">★</button>
+          </div>
+          <h4 class="preset-name">Bamboo Marimba Chime</h4>
+          <p class="card-desc" style="font-size: 0.86rem;">Hollow resonant bars with high-velocity mallet impact transients.</p>
+        </div>
+        <div class="preset-action">
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Mallet C4</span>
+          <button class="btn-play-preview" onclick="playSynthFrequency(523.25, 'Bamboo Marimba')">Preview Tone</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Command Palette Modal (Ctrl+K) -->
+  <div class="cmd-overlay" id="cmd-overlay" onclick="closeCmdBackdrop(event)">
+    <div class="cmd-modal">
+      <div class="cmd-input-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#9090A2"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="cmd-search-input" placeholder="Type a command or jump to preset..." oninput="filterCmdList()">
+        <span class="cmd-key" style="font-size: 0.75rem;">ESC</span>
+      </div>
+      <div class="cmd-results" id="cmd-results-list">
+        <div class="cmd-item" onclick="selectCmdAction('Trigger Frequency Test')">
+          <span>🔊 Play Test Harmonic Tone</span>
+          <span class="cmd-key">Enter</span>
+        </div>
+        <div class="cmd-item" onclick="selectCmdAction('Binaural Mode Toggle')">
+          <span>🎧 Toggle 360° Binaural Spatializer</span>
+          <span class="cmd-key">Space</span>
+        </div>
+        <div class="cmd-item" onclick="selectCmdAction('Filter: Cyber Bass')">
+          <span>⚡ Filter: Cyber Bass Presets</span>
+          <span class="cmd-key">Filter</span>
+        </div>
+        <div class="cmd-item" onclick="selectCmdAction('Export JSON Vault')">
+          <span>💾 Download Preset Registry (.json)</span>
+          <span class="cmd-key">Save</span>
+        </div>
+      </div>
+      <div class="cmd-footer">
+        <span>Navigation: ↑ ↓ Enter</span>
+        <span>AETHER ENGINE // REALTIME CLIENT</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Dock -->
+  <div id="toast-container"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div>
+      <strong style="color: #fff; font-family: var(--font-display);">AETHER DSP LABS // 2026</strong>
+      <p style="margin-top: 4px;">Engineered adhering to the Anti-Basic Vibe Coding Master Directive.</p>
+      <p style="margin-top: 6px; color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.8rem;">Designed &amp; Architected by <strong>Antigravity</strong> // Google DeepMind Agentic Coding</p>
+    </div>
+    <ul class="footer-links">
+      <li><a href="../index.html">← Master Hub (20 Sites)</a></li>
+      <li><a href="#" onclick="showToast('Three.js Shader Engine Active')">WebGL Pipeline</a></li>
+      <li><a href="#" onclick="showToast('Web Audio Graph Connected')">DSP Graph</a></li>
+    </ul>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT: REAL LOGIC, 3D WEBGL, 3D TILT, WEB AUDIO SYNTH & STATE
+       ========================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. Mouse Tracking Flashlight & 3D Tilt Physics
+    // -------------------------------------------------------------------------
+    window.addEventListener('mousemove', (e) => {
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+    });
+
+    // 3D Parallax Tilt Effect on Cards
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      });
+    });
+
+    // -------------------------------------------------------------------------
+    // 2. Pure 3D WebGL Torus Knot Animation (Three.js)
+    // -------------------------------------------------------------------------
+    let scene, camera, renderer, knotMesh, particlesMesh;
+
+    function initThreeHero() {
+      const container = document.getElementById('webgl-canvas-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 1000);
+      camera.position.z = 24;
+
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      // Iridescent Wireframe Torus Knot Geometry
+      const geometry = new THREE.TorusKnotGeometry(7, 2.2, 140, 24, 2, 3);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xFF6B00,
+        roughness: 0.25,
+        metalness: 0.9,
+        wireframe: true,
+        wireframeLinewidth: 1.2
+      });
+      knotMesh = new THREE.Mesh(geometry, material);
+      scene.add(knotMesh);
+
+      // Star Particles around Knot
+      const partGeo = new THREE.BufferGeometry();
+      const partCount = 400;
+      const partPositions = new Float32Array(partCount * 3);
+      for(let i=0; i<partCount*3; i+=3) {
+        partPositions[i] = (Math.random() - 0.5) * 60;
+        partPositions[i+1] = (Math.random() - 0.5) * 60;
+        partPositions[i+2] = (Math.random() - 0.5) * 40;
+      }
+      partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3));
+      const partMat = new THREE.PointsMaterial({
+        color: 0x00F0FF,
+        size: 0.18,
+        transparent: true,
+        opacity: 0.6
+      });
+      particlesMesh = new THREE.Points(partGeo, partMat);
+      scene.add(particlesMesh);
+
+      // Directional Lights
+      const pointLight1 = new THREE.PointLight(0xFF6B00, 3, 100);
+      pointLight1.position.set(15, 15, 15);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x00F0FF, 3, 100);
+      pointLight2.position.set(-15, -15, 15);
+      scene.add(pointLight2);
+
+      scene.add(new THREE.AmbientLight(0x111116));
+
+      // Window Resize Listener
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('webgl-canvas-container');
+      if (!container || !renderer) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    let targetRotX = 0, targetRotY = 0;
+    window.addEventListener('mousemove', (e) => {
+      targetRotX = (e.clientY - window.innerHeight / 2) * 0.0006;
+      targetRotY = (e.clientX - window.innerWidth / 2) * 0.0006;
+    });
+
+    function animateThree() {
+      requestAnimationFrame(animateThree);
+      if (knotMesh) {
+        knotMesh.rotation.x += 0.004;
+        knotMesh.rotation.y += 0.006;
+        knotMesh.rotation.x += (targetRotX - knotMesh.rotation.x) * 0.05;
+        knotMesh.rotation.y += (targetRotY - knotMesh.rotation.y) * 0.05;
+      }
+      if (particlesMesh) {
+        particlesMesh.rotation.y -= 0.001;
+      }
+      renderer.render(scene, camera);
+    }
+
+    initThreeHero();
+    animateThree();
+
+    // -------------------------------------------------------------------------
+    // 3. Real Web Audio API Synthesizer Engine (Sound On Demand!)
+    // -------------------------------------------------------------------------
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSynthFrequency(freq, label = '', padElement = null) {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+      // Lowpass Filter for warm analog resonance
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(freq * 3, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(freq * 0.8, ctx.currentTime + 0.4);
+
+      // Envelope ADSR
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.55);
+
+      // Visual Trigger Feedback
+      if (padElement) {
+        padElement.classList.add('active');
+        setTimeout(() => padElement.classList.remove('active'), 200);
+      }
+
+      triggerFreqAnimation();
+      showToast(`Harmonic Triggered: ${label || freq + ' Hz'}`);
+    }
+
+    function triggerAudioTest() {
+      const ctx = getAudioContext();
+      [329.63, 392.00, 440.00, 523.25].forEach((f, idx) => {
+        setTimeout(() => playSynthFrequency(f, `Note ${idx+1}`), idx * 120);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Live Visualizer Waveform Canvas
+    // -------------------------------------------------------------------------
+    const vCanvas = document.getElementById('freqCanvas');
+    const vCtx = vCanvas.getContext('2d');
+    let waveOffset = 0;
+
+    function resizeVisCanvas() {
+      vCanvas.width = vCanvas.offsetWidth;
+      vCanvas.height = vCanvas.offsetHeight;
+    }
+    resizeVisCanvas();
+    window.addEventListener('resize', resizeVisCanvas);
+
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+      vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height);
+
+      vCtx.beginPath();
+      vCtx.lineWidth = 2;
+      vCtx.strokeStyle = '#FF6B00';
+
+      const sliceWidth = vCanvas.width / 40;
+      let x = 0;
+
+      for (let i = 0; i <= 40; i++) {
+        const y = (vCanvas.height / 2) + Math.sin(i * 0.4 + waveOffset) * (vCanvas.height * 0.32);
+        if (i === 0) vCtx.moveTo(x, y);
+        else vCtx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      vCtx.stroke();
+      waveOffset += 0.08;
+    }
+    drawVisualizer();
+
+    function triggerFreqAnimation() {
+      waveOffset += 0.4;
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Real Client-Side State: Filtering & Search Engine
+    // -------------------------------------------------------------------------
+    const catalogItems = document.querySelectorAll('.catalog-item');
+    const searchInput = document.getElementById('preset-search');
+    let activeFilter = 'all';
+
+    function filterCategory(cat, btn) {
+      activeFilter = cat;
+      document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyCatalogFilters();
+      showToast(`Category: ${btn.innerText}`);
+    }
+
+    function handleSearch() {
+      applyCatalogFilters();
+    }
+
+    function applyCatalogFilters() {
+      const q = searchInput.value.toLowerCase().trim();
+
+      catalogItems.forEach(item => {
+        const title = item.dataset.title.toLowerCase();
+        const cat = item.dataset.category;
+        const matchesCategory = activeFilter === 'all' || cat === activeFilter;
+        const matchesQuery = title.includes(q);
+
+        if (matchesCategory && matchesQuery) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Persistence: LocalStorage Bookmarks & Toggles
+    // -------------------------------------------------------------------------
+    const STORAGE_KEY = 'aether_saved_presets';
+
+    function getSavedPresets() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+
+    function updateBookmarkCounter() {
+      const saved = getSavedPresets();
+      document.getElementById('saved-counter').innerText = saved.length;
+    }
+
+    function toggleBookmark(presetName, btn) {
+      let saved = getSavedPresets();
+      if (saved.includes(presetName)) {
+        saved = saved.filter(n => n !== presetName);
+        btn.classList.remove('saved');
+        showToast(`Removed "${presetName}" from Vault`);
+      } else {
+        saved.push(presetName);
+        btn.classList.add('saved');
+        showToast(`Saved "${presetName}" to Vault`);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      updateBookmarkCounter();
+    }
+
+    function clearSavedFavorites() {
+      localStorage.removeItem(STORAGE_KEY);
+      document.querySelectorAll('.bookmark-btn').forEach(b => b.classList.remove('saved'));
+      updateBookmarkCounter();
+      showToast('Vault Cleared');
+    }
+
+    function exportState() {
+      const saved = getSavedPresets();
+      const blob = new Blob([JSON.stringify({ project: 'AETHER', timestamp: Date.now(), presets: saved }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'aether-configuration.json';
+      a.click();
+      showToast('Downloaded aether-configuration.json');
+    }
+
+    updateBookmarkCounter();
+
+    // -------------------------------------------------------------------------
+    // 7. Interactive Tactile Toggles
+    // -------------------------------------------------------------------------
+    function toggleSwitch(elem, featureName) {
+      elem.classList.toggle('checked');
+      const isChecked = elem.classList.contains('checked');
+      showToast(`${featureName}: ${isChecked ? 'ON' : 'OFF'}`);
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Command Palette Logic (Cmd+K / Ctrl+K)
+    // -------------------------------------------------------------------------
+    const cmdOverlay = document.getElementById('cmd-overlay');
+    const cmdInput = document.getElementById('cmd-search-input');
+
+    function toggleCmdPalette() {
+      cmdOverlay.classList.toggle('active');
+      if (cmdOverlay.classList.contains('active')) {
+        setTimeout(() => cmdInput.focus(), 50);
+      }
+    }
+
+    function closeCmdBackdrop(e) {
+      if (e.target === cmdOverlay) {
+        cmdOverlay.classList.remove('active');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        toggleCmdPalette();
+      }
+      if (e.key === 'Escape' && cmdOverlay.classList.contains('active')) {
+        cmdOverlay.classList.remove('active');
+      }
+    });
+
+    function selectCmdAction(actionName) {
+      cmdOverlay.classList.remove('active');
+      if (actionName.includes('Test')) triggerAudioTest();
+      else if (actionName.includes('Export')) exportState();
+      else showToast(`Action Executed: ${actionName}`);
+    }
+
+    function filterCmdList() {
+      const query = cmdInput.value.toLowerCase();
+      document.querySelectorAll('.cmd-item').forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Floating Animated Toast Feedback System
+    // -------------------------------------------------------------------------
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-pill';
+      toast.innerText = message;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.classList.add('hide'), 2600);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
+</body>
+</html>

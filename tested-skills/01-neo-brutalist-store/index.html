@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HYPERPOP // Neo-Brutalist Creator Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Syne:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFDF8;
+      --card-bg: #FFFFFF;
+      --border: 3.5px solid #000000;
+      --shadow: 5px 5px 0px #000000;
+      --shadow-hover: 7px 7px 0px #000000;
+      --shadow-active: 1px 1px 0px #000000;
+      
+      --yellow: #FFE600;
+      --mint: #00F5A0;
+      --coral: #FF5A5A;
+      --purple: #C89BFF;
+      --blue: #5CE1E6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', sans-serif; }
+    body { background: var(--bg); color: #000; padding: 30px 20px; line-height: 1.4; }
+    
+    header {
+      max-width: 1200px; margin: 0 auto 40px; display: flex; justify-content: space-between; align-items: center;
+      background: var(--yellow); border: var(--border); box-shadow: var(--shadow); padding: 18px 28px;
+    }
+    .logo { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; }
+    .cart-pill {
+      background: #fff; border: var(--border); box-shadow: 3px 3px 0 #000; padding: 10px 20px;
+      font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px;
+    }
+    
+    .hero-banner {
+      max-width: 1200px; margin: 0 auto 40px; background: var(--mint); border: var(--border);
+      box-shadow: var(--shadow); padding: 40px; transform: rotate(-0.5deg);
+    }
+    .hero-banner h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4.2rem); line-height: 1.05; margin-bottom: 12px; }
+    .hero-banner p { font-size: 1.25rem; font-weight: 700; max-width: 650px; }
+    
+    .filter-row { max-width: 1200px; margin: 0 auto 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-brutal {
+      background: #fff; border: var(--border); box-shadow: var(--shadow); padding: 12px 24px;
+      font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.1s ease; text-transform: uppercase;
+    }
+    .btn-brutal:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-hover); }
+    .btn-brutal:active, .btn-brutal.active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--yellow); }
+
+    .catalog { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+    .item-card {
+      background: var(--card-bg); border: var(--border); box-shadow: var(--shadow); padding: 24px;
+      display: flex; flex-direction: column; justify-content: space-between; transition: all 0.15s ease;
+    }
+    .item-card:hover { transform: translate(-3px, -3px); box-shadow: var(--shadow-hover); }
+    .card-top { display: flex; justify-content: space-between; margin-bottom: 16px; }
+    .sticker { padding: 4px 10px; font-weight: 800; font-size: 0.75rem; border: 2px solid #000; text-transform: uppercase; }
+    .sticker-yellow { background: var(--yellow); }
+    .sticker-coral { background: var(--coral); color: #fff; }
+    .sticker-purple { background: var(--purple); }
+    .item-card h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin-bottom: 8px; }
+    .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 16px; border-top: 2.5px dashed #000; }
+    .price { font-size: 1.6rem; font-weight: 800; }
+
+    /* Cart Drawer Modal */
+    .cart-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 1000;
+    }
+    .cart-modal.open { display: grid; }
+    .cart-box {
+      background: var(--bg); border: 4px solid #000; box-shadow: 10px 10px 0 #000;
+      width: 90%; max-width: 500px; padding: 30px;
+    }
+    .cart-item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 2px solid #000; font-weight: 700; }
+    .coupon-box { margin-top: 20px; display: flex; gap: 8px; }
+    .coupon-box input { flex: 1; padding: 10px; border: 2px solid #000; font-weight: 700; outline: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">⚡ HYPERPOP.STORE</div>
+    <div class="cart-pill" onclick="openCart()">
+      <span>🛒 CART</span>
+      <span id="cart-count" style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">0</span>
+    </div>
+  </header>
+
+  <section class="hero-banner">
+    <h1>NO AI SLOP.<br>RAW DESIGN ASSETS.</h1>
+    <p>Hand-crafted brutalist sound packs, custom shaders, and vector glyphs for high-impact creative directors.</p>
+  </section>
+
+  <div class="filter-row">
+    <button class="btn-brutal active" onclick="filterItems('all', this)">All Vault Items</button>
+    <button class="btn-brutal" onclick="filterItems('3d', this)">3D Assets</button>
+    <button class="btn-brutal" onclick="filterItems('audio', this)">Audio Loops</button>
+    <button class="btn-brutal" onclick="filterItems('fonts', this)">Display Type</button>
+  </div>
+
+  <main class="catalog" id="catalog-grid">
+    <div class="item-card" data-cat="3d">
+      <div>
+        <div class="card-top">
+          <span class="sticker sticker-yellow">3D OBJ + GLTF</span>
+          <span>★★★★★ (48)</span>
+        </div>
+        <h3>CHROME INFLATABLES 01</h3>
+        <p>40 metallic 3D organic chrome sculptures rendered at 8K resolution with displacement maps.</p>
+      </div>
+      <div class="price-row">
+        <span class="price">$29</span>
+        <button class="btn-brutal" style="background: var(--mint);" onclick="addToCart('Chrome Inflatables 01', 29)">+ Add to Bag</button>
+      </div>
+    </div>
+
+    <div class="item-card" data-cat="audio">
+      <div>
+        <div class="card-top">
+          <span class="sticker sticker-coral">WAV 24-BIT</span>
+          <span>★★★★★ (112)</span>
+        </div>
+        <h3>CYBERPUNK PERCUSSION</h3>
+        <p>Hard industrial kicks, metallic clangs, and analog modular glitch hits synthesized from scratch.</p>
+      </div>
+      <div class="price-row">
+        <span class="price">$19</span>
+        <button class="btn-brutal" style="background: var(--yellow);" onclick="addToCart('Cyberpunk Percussion', 19)">+ Add to Bag</button>
+      </div>
+    </div>
+
+    <div class="item-card" data-cat="fonts">
+      <div>
+        <div class="card-top">
+          <span class="sticker sticker-purple">OTF / TTF</span>
+          <span>★★★★★ (89)</span>
+        </div>
+        <h3>NEO-GROTESK DISRUPT</h3>
+        <p>Heavyweight experimental display typeface with alternate glyphs, ligature sets, and Greek letters.</p>
+      </div>
+      <div class="price-row">
+        <span class="price">$35</span>
+        <button class="btn-brutal" style="background: var(--blue);" onclick="addToCart('Neo-Grotesk Disrupt', 35)">+ Add to Bag</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="cart-modal" id="cart-modal">
+    <div class="cart-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-family: 'Syne', sans-serif;">YOUR BAG</h2>
+        <button class="btn-brutal" style="padding: 4px 10px;" onclick="closeCart()">✕ CLOSE</button>
+      </div>
+      <div id="cart-items">
+        <p style="padding: 20px 0; color: #666;">Your bag is currently empty.</p>
+      </div>
+      <div class="coupon-box">
+        <input type="text" id="coupon-code" placeholder="PROMO CODE (TRY 'VIBE20')">
+        <button class="btn-brutal" style="background: var(--yellow);" onclick="applyPromo()">APPLY</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 24px; font-size: 1.3rem; font-weight: 800;">
+        <span>TOTAL:</span>
+        <span id="cart-total">$0</span>
+      </div>
+      <button class="btn-brutal" style="width: 100%; margin-top: 20px; background: var(--mint); padding: 16px;" onclick="checkout()">PROCEED TO CHECKOUT ➔</button>
+    </div>
+  </div>
+
+  <script>
+    let cart = [];
+    let discount = 0;
+
+    function addToCart(title, price) {
+      cart.push({ title, price });
+      updateCartUI();
+      showBrutalToast(`Added "${title}" ($${price}) to your cart!`);
+    }
+
+    function updateCartUI() {
+      document.getElementById('cart-count').innerText = cart.length;
+      const container = document.getElementById('cart-items');
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="padding: 20px 0; color: #666;">Your bag is currently empty.</p>';
+        document.getElementById('cart-total').innerText = '$0';
+        return;
+      }
+      let html = '';
+      let sum = 0;
+      cart.forEach((item, index) => {
+        sum += item.price;
+        html += `<div class="cart-item-row">
+          <span>${item.title}</span>
+          <div>
+            <span>$${item.price}</span>
+            <button onclick="removeItem(${index})" style="margin-left: 8px; border: none; background: transparent; cursor: pointer; color: red; font-weight: bold;">✕</button>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+      const finalTotal = Math.max(0, sum - (sum * discount));
+      document.getElementById('cart-total').innerText = `$${finalTotal.toFixed(2)}`;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function openCart() { document.getElementById('cart-modal').classList.add('open'); }
+    function closeCart() { document.getElementById('cart-modal').classList.remove('open'); }
+
+    function applyPromo() {
+      const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+      if (code === 'VIBE20') {
+        discount = 0.20;
+        updateCartUI();
+        showBrutalToast('🎉 Promo Code VIBE20 Applied! 20% OFF.');
+      } else {
+        showBrutalToast('❌ Invalid Promo Code. Try "VIBE20"!');
+      }
+    }
+
+    function checkout() {
+      if (cart.length === 0) return showBrutalToast('Your cart is empty!');
+      showBrutalToast(`Order placed successfully! Total: ${document.getElementById('cart-total').innerText}`);
+      cart = [];
+      closeCart();
+      updateCartUI();
+    }
+
+    function filterItems(cat, btn) {
+      document.querySelectorAll('.btn-brutal').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.item-card').forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) card.style.display = 'flex';
+        else card.style.display = 'none';
+      });
+    }
+
+    function showBrutalToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#FFE600;border:3px solid #000;box-shadow:4px 4px 0 #000;padding:12px 20px;font-weight:800;z-index:99999;transition:all 0.2s ease;';
+      t.innerText = msg;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; setTimeout(() => t.remove(), 250); }, 2600);
+    }
+  </script>
+
+  <footer style="max-width: 1200px; margin: 60px auto 0; padding: 20px; border-top: 3px solid #000; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.85rem; flex-wrap: wrap; gap: 12px;">
+    <div>⚡ HYPERPOP // NEO-BRUTALIST VAULT</div>
+    <div>Designed &amp; Architected by <span style="background: var(--yellow); padding: 2px 6px; border: 2px solid #000;">Antigravity</span> // Google DeepMind</div>
+    <div><a href="../../index.html" style="color: #000; text-decoration: none; border-bottom: 2px solid #000;">← Master Hub (20 Sites)</a></div>
+  </footer>
+</body>
+</html>

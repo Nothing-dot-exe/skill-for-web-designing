@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MÜLLER &amp; KAUFMANN // Studio für Gestaltung</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --swiss-red: #E60000;
+      --black: #0A0A0A;
+      --white: #FFFFFF;
+      --gray-light: #F0F0F0;
+      --gray-line: #D0D0D0;
+      --font: 'Archivo', Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background: var(--white); color: var(--black); line-height: 1.35; padding: 0 40px 60px; }
+
+    header {
+      padding: 40px 0 20px; border-bottom: 2px solid var(--black); display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px;
+      margin-bottom: 40px;
+    }
+    .header-logo { grid-column: span 6; font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 900; letter-spacing: -0.04em; }
+    .header-meta { grid-column: span 6; display: flex; justify-content: flex-end; align-items: flex-end; gap: 30px; font-size: 0.85rem; font-weight: 600; }
+    .swiss-cross { display: inline-block; width: 14px; height: 14px; background: var(--swiss-red); position: relative; }
+    .swiss-cross::before { content: ''; position: absolute; width: 4px; height: 10px; background: #fff; top: 2px; left: 5px; }
+    .swiss-cross::after { content: ''; position: absolute; height: 4px; width: 10px; background: #fff; top: 5px; left: 2px; }
+
+    .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+
+    .hero-manifesto {
+      grid-column: span 12; margin-bottom: 60px; font-size: clamp(2rem, 4vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.1; max-width: 1000px;
+    }
+
+    .controls-row {
+      grid-column: span 12; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--black);
+      padding-bottom: 14px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;
+    }
+    .view-toggle { display: flex; gap: 12px; cursor: pointer; }
+    .view-btn { border: none; background: transparent; font-weight: 800; cursor: pointer; text-decoration: underline; }
+    .view-btn.active { color: var(--swiss-red); }
+
+    /* Work Archive */
+    .project-row {
+      grid-column: span 12; border-bottom: 1px solid var(--gray-line); padding: 24px 0; display: grid; grid-template-columns: repeat(12, 1fr);
+      gap: 20px; align-items: center; cursor: pointer; transition: all 0.2s ease;
+    }
+    .project-row:hover { background: var(--gray-light); padding-left: 10px; }
+    .col-idx { grid-column: span 1; font-weight: 900; font-size: 1.2rem; color: var(--swiss-red); }
+    .col-title { grid-column: span 6; font-size: 1.5rem; font-weight: 800; }
+    .col-year { grid-column: span 2; font-weight: 600; color: #666; }
+    .col-category { grid-column: span 3; font-weight: 800; text-transform: uppercase; text-align: right; }
+
+    /* Project Detail Drawer */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer-body {
+      position: fixed; top: 0; right: 0; width: 100%; max-width: 600px; height: 100vh; background: #fff;
+      border-left: 3px solid var(--black); padding: 40px; overflow-y: auto;
+    }
+    .btn-close { border: 2px solid var(--black); background: var(--swiss-red); color: #fff; font-weight: 900; padding: 10px 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-logo">MÜLLER &amp; KAUFMANN</div>
+    <div class="header-meta">
+      <div>ZÜRICH // BASEL</div>
+      <div><span class="swiss-cross"></span> SWISS TYPOGRAPHY 1968–2026</div>
+    </div>
+  </header>
+
+  <div class="grid-12">
+    <div class="hero-manifesto">
+      Form follows mathematical structure. Content is liberated through rigid typographic hierarchy.
+    </div>
+
+    <div class="controls-row">
+      <div>CATALOGUE OF WORKS [12 ARCHIVED ENTRIES]</div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-list" onclick="setView('list')">INDEX VIEW</button>
+        <button class="view-btn" id="btn-grid" onclick="setView('grid')">COMPACT VIEW</button>
+      </div>
+    </div>
+
+    <!-- Archive Rows -->
+    <div class="project-row" onclick="openDrawer('Kunsthaus Zürich Identity', 'Visual identity, custom grotesk typeface, and signage system for the contemporary art wing.')">
+      <div class="col-idx">01</div>
+      <div class="col-title">Kunsthaus Zürich Identity</div>
+      <div class="col-year">2026</div>
+      <div class="col-category">Identity &amp; Signage</div>
+    </div>
+
+    <div class="project-row" onclick="openDrawer('Swiss National Rail Telemetry', 'Realtime schedule interfaces deployed across 48 mainline train stations.')">
+      <div class="col-idx">02</div>
+      <div class="col-title">Swiss National Rail Telemetry</div>
+      <div class="col-year">2025</div>
+      <div class="col-category">Digital System</div>
+    </div>
+
+    <div class="project-row" onclick="openDrawer('Hoffmann-La Roche Annual Report', 'Hardcover 420-page financial compendium set entirely in Haas Neue Grotesk.')">
+      <div class="col-idx">03</div>
+      <div class="col-title">Hoffmann-La Roche Annual Report</div>
+      <div class="col-year">2025</div>
+      <div class="col-category">Editorial Print</div>
+    </div>
+
+    <div class="project-row" onclick="openDrawer('Architecture Biennale Pavilion', 'Exhibition spatial layout, typographic banners, and bilingual catalogue.')">
+      <div class="col-idx">04</div>
+      <div class="col-title">Architecture Biennale Pavilion</div>
+      <div class="col-year">2024</div>
+      <div class="col-category">Exhibition Architecture</div>
+    </div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer" onclick="closeDrawer(event)">
+    <div class="drawer-body">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+        <span style="font-weight: 900; color: var(--swiss-red); font-size: 1.2rem;">CASE STUDY RECORD</span>
+        <button class="btn-close" onclick="document.getElementById('drawer').classList.remove('open')">CLOSE ✕</button>
+      </div>
+      <h2 id="drawer-title" style="font-size: 2.2rem; font-weight: 900; margin-bottom: 20px;">Project Title</h2>
+      <p id="drawer-desc" style="font-size: 1.1rem; line-height: 1.6; color: #444; margin-bottom: 30px;">Project Description</p>
+      
+      <div style="border-top: 2px solid var(--black); padding-top: 20px; font-size: 0.85rem; font-weight: 700;">
+        <div style="margin-bottom: 8px;">GRID SYSTEM: 12-COLUMN UNIFORM</div>
+        <div style="margin-bottom: 8px;">TYPEFACE: HAAS NEUE GROTESK</div>
+        <div>CLIENT: SWISS FEDERAL CULTURAL COMMISSION</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDrawer(title, desc) {
+      document.getElementById('drawer-title').innerText = title;
+      document.getElementById('drawer-desc').innerText = desc;
+      document.getElementById('drawer').classList.add('open');
+    }
+
+    function closeDrawer(e) {
+      if (e.target.id === 'drawer') {
+        document.getElementById('drawer').classList.remove('open');
+      }
+    }
+
+    function setView(view) {
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      if (view === 'grid') {
+        document.getElementById('btn-grid').classList.add('active');
+        document.querySelectorAll('.project-row').forEach(row => {
+          row.style.background = '#f7f7f7';
+          row.style.marginBottom = '12px';
+        });
+      } else {
+        document.getElementById('btn-list').classList.add('active');
+        document.querySelectorAll('.project-row').forEach(row => {
+          row.style.background = 'transparent';
+          row.style.marginBottom = '0px';
+        });
+      }
+    }
+  </script>
+</body>
+</html>

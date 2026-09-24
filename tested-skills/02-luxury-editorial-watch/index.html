@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHRONOMÈTRE 1888 // Atelier Horloger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FBF9F5;
+      --surface: #F2EFE9;
+      --espresso: #1A1615;
+      --ochre: #C29B38;
+      --hairline: rgba(26, 22, 21, 0.15);
+      --font-serif: 'Cinzel', serif;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--espresso); font-family: var(--font-sans); line-height: 1.7; }
+
+    nav {
+      max-width: 1400px; margin: 0 auto; padding: 36px 40px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 0.5px solid var(--hairline);
+    }
+    .brand-title { font-family: var(--font-serif); font-size: 1.4rem; letter-spacing: 0.2em; text-transform: uppercase; }
+    .nav-meta { font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: #777; }
+
+    .hero-split {
+      max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; min-height: 85vh;
+      border-bottom: 0.5px solid var(--hairline);
+    }
+    @media (max-width: 900px) { .hero-split { grid-template-columns: 1fr; } }
+
+    .hero-info { padding: 80px 60px; display: flex; flex-direction: column; justify-content: center; }
+    .heritage-badge { font-family: var(--font-serif); color: var(--ochre); font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 24px; }
+    .hero-h1 { font-family: var(--font-serif); font-size: clamp(2.8rem, 4.5vw, 4.2rem); line-height: 1.15; font-weight: 400; margin-bottom: 24px; }
+    .hero-p { color: #5a5450; font-size: 1.05rem; max-width: 480px; margin-bottom: 40px; font-weight: 300; }
+
+    .configurator-row { margin-bottom: 36px; }
+    .config-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.18em; color: #888; margin-bottom: 12px; display: block; }
+    .strap-options { display: flex; gap: 14px; }
+    .strap-pill {
+      padding: 8px 18px; border: 0.5px solid var(--hairline); background: transparent; font-size: 0.8rem;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.25s ease;
+    }
+    .strap-pill.active { border-color: var(--espresso); background: var(--espresso); color: #fff; }
+
+    .btn-atelier {
+      display: inline-flex; align-items: center; justify-content: center; padding: 18px 42px; background: var(--espresso);
+      color: #fff; font-family: var(--font-serif); font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase;
+      text-decoration: none; border: none; cursor: pointer; transition: all 0.3s ease;
+    }
+    .btn-atelier:hover { background: var(--ochre); }
+
+    .hero-visual {
+      background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 60px; border-left: 0.5px solid var(--hairline); position: relative;
+    }
+    .watch-dial-stage {
+      width: 320px; height: 320px; border-radius: 50%; border: 1px solid var(--hairline);
+      display: grid; place-items: center; background: radial-gradient(circle, #fff 0%, #ebe7df 100%);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.08); position: relative; transition: all 0.4s ease;
+    }
+    .watch-face {
+      width: 280px; height: 280px; border-radius: 50%; border: 2px solid var(--ochre);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      position: relative;
+    }
+    .watch-hour-hand {
+      position: absolute; width: 4px; height: 75px; background: var(--espresso); top: 65px; transform-origin: bottom center;
+      transform: rotate(65deg); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .watch-minute-hand {
+      position: absolute; width: 2.5px; height: 105px; background: var(--ochre); top: 35px; transform-origin: bottom center;
+      transform: rotate(210deg); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .watch-center-pin { width: 12px; height: 12px; border-radius: 50%; background: var(--espresso); z-index: 10; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand-title">Atelier Vacher // Genève</div>
+    <div class="nav-meta">Manufacture N° 084 // Édition Limitée</div>
+  </nav>
+
+  <main class="hero-split">
+    <div class="hero-info">
+      <span class="heritage-badge">Calibre Tourbillon 3400</span>
+      <h1 class="hero-h1">The Celestial Meridian.</h1>
+      <p class="hero-p">
+        Hand-assembled in the Vallée de Joux. Featuring a hand-polished titanium bezel, 72-hour power reserve, and grand feu enameled dial.
+      </p>
+
+      <div class="configurator-row">
+        <span class="config-label">Select Leather Strapping:</span>
+        <div class="strap-options">
+          <button class="strap-pill active" onclick="setStrap('Alligator Espresso', '#1A1615', this)">Espresso Leather</button>
+          <button class="strap-pill" onclick="setStrap('Cognac Calfskin', '#8B5A2B', this)">Cognac Calfskin</button>
+          <button class="strap-pill" onclick="setStrap('Midnight Blue Nubuck', '#1C2833', this)">Midnight Blue</button>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn-atelier" onclick="reserveTimepiece()">Inquire Allocation — $48,000</button>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="watch-dial-stage" id="watch-stage">
+        <div class="watch-face">
+          <span style="font-family: var(--font-serif); font-size: 0.8rem; letter-spacing: 0.15em; margin-bottom: 40px;">VACHER<br><small style="font-size: 0.6rem; color: #888;">GENÈVE</small></span>
+          <div class="watch-hour-hand" id="hour-hand"></div>
+          <div class="watch-minute-hand" id="minute-hand"></div>
+          <div class="watch-center-pin"></div>
+          <span style="font-family: var(--font-serif); font-size: 0.65rem; color: var(--ochre); margin-top: 50px;">CHRONOMÈTRE CERTIFIÉ</span>
+        </div>
+      </div>
+      <div style="margin-top: 32px; font-family: var(--font-serif); font-size: 0.85rem; letter-spacing: 0.2em; color: #666;" id="strap-readout">
+        STRAP: ALLIGATOR ESPRESSO
+      </div>
+    </div>
+  </main>
+
+  <footer style="max-width: 1200px; margin: 80px auto 0; padding: 24px 0; border-top: 0.5px solid rgba(0,0,0,0.12); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-serif); font-size: 0.82rem; color: #7A7674; flex-wrap: wrap; gap: 12px;">
+    <div>ATELIER VACHER GENÈVE // ARCHETYPE 02</div>
+    <div>Designed &amp; Architected by <strong style="color: var(--espresso);">Antigravity</strong> // Google DeepMind</div>
+    <div><a href="../../index.html" style="color: var(--espresso); text-decoration: none;">← Master Hub (21 Sites)</a></div>
+  </footer>
+
+  <div id="luxury-toast-dock" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999;"></div>
+
+  <script>
+    function setStrap(name, color, btn) {
+      document.querySelectorAll('.strap-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('strap-readout').innerText = `STRAP: ${name.toUpperCase()}`;
+      document.getElementById('watch-stage').style.borderColor = color;
+      
+      // Animate hands on change
+      document.getElementById('hour-hand').style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
+      document.getElementById('minute-hand').style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
+    }
+
+    function reserveTimepiece() {
+      const dock = document.getElementById('luxury-toast-dock');
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: #1A1615; color: #F9F6F0; border: 1px solid #C29B38; padding: 14px 22px; font-family: "Cinzel", Georgia, serif; font-size: 0.85rem; letter-spacing: 0.08em; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.25s ease;';
+      toast.innerText = '✦ Allocation inquiry registered. An Atelier Client Advisor will contact you.';
+      dock.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 250); }, 3200);
+    }
+  </script>
+</body>
+</html>

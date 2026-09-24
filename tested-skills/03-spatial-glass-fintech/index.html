@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA // Spatial Wealth Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090A10;
+      --glass-panel: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-sheen: rgba(255, 255, 255, 0.25);
+      --accent-blue: #38BDF8;
+      --accent-purple: #A855F7;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+    body {
+      background: var(--bg); color: #fff; min-height: 100vh; padding: 40px 20px; overflow-x: hidden; position: relative;
+    }
+
+    /* Ambient Spatial Blur Orbs */
+    .orb-1 {
+      position: fixed; width: 600px; height: 600px; top: -100px; left: -100px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 70%); filter: blur(80px); pointer-events: none;
+    }
+    .orb-2 {
+      position: fixed; width: 500px; height: 500px; bottom: -50px; right: -50px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%); filter: blur(80px); pointer-events: none;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+
+    /* Glass Panels */
+    .glass-card {
+      background: var(--glass-panel); backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-sheen);
+      border-radius: 24px; padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+    .brand { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+
+    .grid-dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .grid-dashboard { grid-template-columns: 1fr; } }
+
+    .balance-val { font-family: var(--font-display); font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; margin: 12px 0; }
+    .chart-box { width: 100%; height: 180px; margin-top: 24px; }
+    canvas#chartCanvas { width: 100%; height: 100%; display: block; }
+
+    .swap-box label { font-size: 0.8rem; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .swap-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .swap-input-row input {
+      flex: 1; padding: 14px 18px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      border-radius: 14px; color: #fff; font-size: 1.1rem; outline: none; font-weight: 600;
+    }
+    .swap-input-row select {
+      padding: 14px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border);
+      border-radius: 14px; color: #fff; font-weight: 600; outline: none;
+    }
+
+    .btn-glass {
+      width: 100%; padding: 16px; border-radius: 99px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border: none; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.25s ease;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+    }
+    .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(56, 189, 248, 0.45); }
+    .btn-glass:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <div class="orb-1"></div>
+  <div class="orb-2"></div>
+
+  <div class="container">
+    <header class="glass-card" style="padding: 16px 28px;">
+      <div class="brand">✨ AURA // SPATIAL</div>
+      <button class="btn-glass" style="width: auto; padding: 8px 20px; font-size: 0.85rem;" onclick="connectWallet()">
+        Connect Wallet
+      </button>
+    </header>
+
+    <div class="grid-dashboard">
+      <div class="glass-card">
+        <span style="font-size: 0.85rem; color: #888; text-transform: uppercase;">Total Net Assets</span>
+        <div class="balance-val">$148,290.40</div>
+        <span style="color: #34D399; font-weight: 600;">↑ +14.8% past 30 days</span>
+
+        <div class="chart-box">
+          <canvas id="chartCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <h3 style="font-family: var(--font-display); margin-bottom: 20px;">Instant Asset Swap</h3>
+        
+        <div class="swap-box">
+          <label>You Pay</label>
+          <div class="swap-input-row">
+            <input type="number" id="pay-amt" value="2.5" oninput="calculateSwap()">
+            <select id="pay-curr" onchange="calculateSwap()">
+              <option value="ETH">ETH</option>
+              <option value="BTC">BTC</option>
+              <option value="SOL">SOL</option>
+            </select>
+          </div>
+
+          <label>You Receive (Estimated)</label>
+          <div class="swap-input-row">
+            <input type="text" id="recv-amt" value="6,450.00" readonly>
+            <select id="recv-curr">
+              <option value="USDC">USDC</option>
+            </select>
+          </div>
+
+          <button class="btn-glass" onclick="executeSwap()">Execute Atomic Swap</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Live Canvas Smooth Area Graph
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    const points = [40, 55, 48, 70, 65, 85, 95, 80, 110, 130];
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height - points[0]);
+    const step = canvas.width / (points.length - 1);
+    points.forEach((p, i) => {
+      ctx.lineTo(i * step, canvas.height - p);
+    });
+    ctx.strokeStyle = '#38BDF8';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Fill gradient
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    function calculateSwap() {
+      const amt = parseFloat(document.getElementById('pay-amt').value) || 0;
+      const curr = document.getElementById('pay-curr').value;
+      const rates = { ETH: 2580, BTC: 64200, SOL: 154 };
+      const total = amt * rates[curr];
+      document.getElementById('recv-amt').value = total.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    }
+
+    function showGlassToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(20,20,30,0.85);backdrop-filter:blur(20px);border:1px solid rgba(56,189,248,0.4);border-radius:12px;padding:12px 20px;color:#fff;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:99999;transition:all 0.25s ease;';
+      t.innerText = msg;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; setTimeout(() => t.remove(), 250); }, 2600);
+    }
+
+    function executeSwap() {
+      showGlassToast(`⚡ Swap Complete! Exchanged ${document.getElementById('pay-amt').value} ${document.getElementById('pay-curr').value} for ${document.getElementById('recv-amt').value} USDC.`);
+    }
+
+    function connectWallet() {
+      showGlassToast('✓ Wallet Connected: 0x71C...93F (Ethereum Mainnet)');
+    }
+  </script>
+
+  <footer style="max-width: 1100px; margin: 60px auto 0; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #888; flex-wrap: wrap; gap: 12px;">
+    <div>LUMINA // SPATIAL WEALTH MANAGEMENT</div>
+    <div>Designed &amp; Architected by <strong style="color: #38BDF8;">Antigravity</strong> // Google DeepMind</div>
+    <div><a href="../../index.html" style="color: #aaa; text-decoration: none;">← Master Hub (20 Sites)</a></div>
+  </footer>
+</body>
+</html>

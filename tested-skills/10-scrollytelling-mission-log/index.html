@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARES V // Mars Colonization Scrollytelling Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030308;
+      --accent: #FF5A1F;
+      --cyan: #00F0FF;
+      --border: rgba(255, 255, 255, 0.1);
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: #fff; font-family: var(--font-body); overflow-x: hidden; }
+
+    #starfield { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
+
+    .content-stream { position: relative; z-index: 10; max-width: 900px; margin: 0 auto; padding: 80px 24px 160px; }
+    
+    .mission-header { text-align: center; margin-bottom: 100px; }
+    .badge { font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan); letter-spacing: 0.2em; text-transform: uppercase; }
+    .title { font-family: var(--font-display); font-size: clamp(2.8rem, 5vw, 4.5rem); margin: 12px 0 20px; letter-spacing: -0.02em; }
+    
+    /* Timeline Chapters */
+    .timeline { position: relative; border-left: 2px solid rgba(255, 255, 255, 0.15); padding-left: 36px; margin-left: 20px; }
+    .chapter { margin-bottom: 90px; position: relative; }
+    .chapter-dot {
+      position: absolute; left: -44px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--bg); border: 3px solid var(--cyan); box-shadow: 0 0 14px var(--cyan);
+    }
+    .chapter-time { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; }
+    .chapter-title { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 12px; }
+    .chapter-card {
+      background: rgba(14, 14, 22, 0.7); backdrop-filter: blur(20px); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
+    .interactive-panel { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-mission {
+      padding: 10px 20px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border);
+      color: #fff; font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-mission:hover { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  </style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="content-stream">
+    <div class="mission-header">
+      <span class="badge">DEEP SPACE FLIGHT LOG // 2026</span>
+      <h1 class="title">EXPEDITION ARES V</h1>
+      <p style="color: #999; max-width: 600px; margin: 0 auto;">Continuous scrollytelling telemetry recording mankind's first permanent research outpost in Chryse Planitia, Mars.</p>
+    </div>
+
+    <div class="timeline">
+      <!-- Chapter 1 -->
+      <div class="chapter">
+        <div class="chapter-dot"></div>
+        <div class="chapter-time">T+ 00:00:00 // LAUNCH PAD 39A</div>
+        <h2 class="chapter-title">Raptor Engine Ignition</h2>
+        <div class="chapter-card">
+          <p style="color: #bbb; line-height: 1.7;">
+            Super Heavy booster generates 16.7 million pounds of thrust. Acoustic suppression water deluge activated. Vehicle clears the launch tower with zero telemetry anomalies.
+          </p>
+          <div class="interactive-panel">
+            <button class="btn-mission" onclick="playAudioPing('Launch Comm Feed Loaded')">🔊 Listen to CapCom Audio</button>
+            <button class="btn-mission" onclick="playAudioPing('Telemetry Velocity: 1,420 m/s')">📊 View Thrust Vectors</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 2 -->
+      <div class="chapter">
+        <div class="chapter-dot" style="border-color: var(--accent); box-shadow: 0 0 14px var(--accent);"></div>
+        <div class="chapter-time">T+ 03:42:10 // TRANS-MARS INJECTION</div>
+        <h2 class="chapter-title">Nuclear Thermal Stage Burn</h2>
+        <div class="chapter-card">
+          <p style="color: #bbb; line-height: 1.7;">
+            Spacecraft departs high Earth orbit. Velocity delta reaches 4.2 km/s. Crew begins 180-day transit through interplanetary vacuum with artificial gravity centrifuge deployment.
+          </p>
+          <div class="interactive-panel">
+            <button class="btn-mission" onclick="playAudioPing('Centrifuge RPM: 4.2 stabilized')">🌀 Inspect Centrifuge G-Forces</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 3 -->
+      <div class="chapter">
+        <div class="chapter-dot" style="border-color: #34D399; box-shadow: 0 0 14px #34D399;"></div>
+        <div class="chapter-time">T+ 182:14:00 // CHRYSE PLANITIA</div>
+        <h2 class="chapter-title">Aerocapture &amp; Atmospheric Touchdown</h2>
+        <div class="chapter-card">
+          <p style="color: #bbb; line-height: 1.7;">
+            Pica-X thermal tiles absorb 1,800°C atmospheric plasma. Grid fins steer craft toward landing pad. Touchdown verified. First human bootprint on red dust confirmed.
+          </p>
+          <div class="interactive-panel">
+            <button class="btn-mission" onclick="playAudioPing('Surface Base Power: Solar & Fission Online')">📡 Ping Chryse Surface Base</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Starfield Canvas Animation
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars = Array.from({ length: 250 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5,
+      alpha: Math.random()
+    }));
+
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.fill();
+        s.alpha += (Math.random() - 0.5) * 0.04;
+        if (s.alpha < 0.1) s.alpha = 0.1;
+        if (s.alpha > 0.9) s.alpha = 0.9;
+      });
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    function playAudioPing(msg) {
+      let dock = document.getElementById('mission-toast-dock');
+      if (!dock) {
+        dock = document.createElement('div');
+        dock.id = 'mission-toast-dock';
+        dock.style.cssText = 'position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;';
+        document.body.appendChild(dock);
+      }
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: rgba(14,14,22,0.92); border: 1px solid var(--accent); border-radius: 8px; padding: 12px 18px; color: #fff; font-family: var(--font-mono); font-size: 0.8rem; box-shadow: 0 0 20px rgba(255,90,31,0.35); transition: all 0.2s ease;';
+      toast.innerText = `📡 ${msg}`;
+      dock.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 200); }, 2600);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+
+  <footer style="position: relative; z-index: 10; max-width: 1000px; margin: 80px auto 30px; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.8rem; color: #888; flex-wrap: wrap; gap: 12px;">
+    <div>ARES V // INTERPLANETARY MISSION LOG</div>
+    <div>Designed by <strong style="color: var(--accent);">Antigravity</strong> // Google DeepMind</div>
+    <div><a href="../../index.html" style="color: var(--accent); text-decoration: none;">← Master Hub (21 Sites)</a></div>
+  </footer>
+</body>
+</html>
