@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE GRAND SYNTHESIS // Full-Spectrum Vibe Coding Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #07070A;
+      --card-bg: #0F0F16;
+      --accent: #FF5A1F;
+      --cyan: #00F0FF;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --text-hero: clamp(2.6rem, 5vw + 1rem, 4.8rem);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+    body { background: var(--bg); color: #fff; overflow-x: hidden; position: relative; }
+
+    #three-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; opacity: 0.65; }
+
+    /* Noise Texture */
+    .noise {
+      position: fixed; inset: 0; opacity: 0.04; pointer-events: none; z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .main-wrap { position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .header-hero { text-align: center; margin-bottom: 60px; }
+    .badge {
+      display: inline-block; padding: 6px 16px; border-radius: 99px; background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--cyan); color: var(--cyan); font-family: var(--font-mono); font-size: 0.75rem;
+      letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 16px;
+    }
+    h1 { font-family: var(--font-display); font-size: var(--text-hero); line-height: 1.1; margin-bottom: 18px; }
+    p.sub { color: #8C8C9E; max-width: 640px; margin: 0 auto 36px; font-size: 1.1rem; line-height: 1.6; }
+
+    /* Bento Grid */
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+    .bento-card {
+      background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 24px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform-style: preserve-3d;
+      position: relative; overflow: hidden;
+    }
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    .span-12 { grid-column: span 12; }
+    @media (max-width: 900px) { .span-8, .span-4 { grid-column: span 12; } }
+
+    /* Spotlight border */
+    .bento-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+      background: radial-gradient(300px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), var(--cyan), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .bento-card:hover::before { opacity: 1; }
+
+    /* Button Types Showcase */
+    .btn-glow {
+      padding: 12px 28px; border-radius: 99px; background: linear-gradient(180deg, #22222E 0%, #111116 100%);
+      color: #fff; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255, 90, 31, 0.3);
+      font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-glow:hover { transform: translateY(-2px); border-color: var(--accent); }
+
+    .btn-brutal {
+      padding: 12px 28px; background: #FFE600; color: #000; font-weight: 800; border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000; cursor: pointer; transition: all 0.1s ease;
+    }
+    .btn-brutal:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+
+    #toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 10000; }
+    .toast {
+      background: #14141E; border: 1px solid var(--cyan); color: #fff; padding: 12px 20px;
+      border-radius: 12px; font-size: 0.85rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div id="three-bg"></div>
+
+  <div class="main-wrap">
+    <div class="header-hero">
+      <span class="badge">PROJECT 10 // THE GRAND SYNTHESIS</span>
+      <h1>ALL DIMENSIONS CONVERGED.</h1>
+      <p class="sub">
+        Pure 3D WebGL Canvas, Tactile 3D Cards, Fluid Clamp Scale, Kinetic Buttons, and Audio Physics unified into a single experience.
+      </p>
+
+      <div style="display: flex; justify-content: center; gap: 16px;">
+        <button class="btn-glow" onclick="playBeep(440, 'Cyber Glow Triggered')">🔊 Cyber Glow Button</button>
+        <button class="btn-brutal" onclick="playBeep(659, 'Neo-Brutalist Triggered')">Neo-Brutal Offset</button>
+      </div>
+    </div>
+
+    <div class="bento-grid">
+      <div class="bento-card span-8 tilt-card">
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan);">SPATIAL 3D TILT MATRIX</span>
+        <h3 style="font-family: var(--font-display); font-size: 1.6rem; margin: 12px 0;">Reactive Cursor Physics</h3>
+        <p style="color: #999; line-height: 1.6;">
+          Hover across this surface to observe real-time calculate perspective tilt combined with an interactive laser radial border gradient that tracks coordinates.
+        </p>
+      </div>
+
+      <div class="bento-card span-4 tilt-card">
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);">SYNTHESIZED OSCILLATOR</span>
+        <h3 style="font-family: var(--font-display); font-size: 1.4rem; margin: 12px 0;">Web Audio Feedback</h3>
+        <p style="color: #888; font-size: 0.85rem; margin-bottom: 20px;">Zero dead buttons. Generates authentic acoustic audio pulses.</p>
+        <button class="btn-glow" style="width: 100%;" onclick="playBeep(880, 'High Harmonic Pulse')">Trigger Sound Pulse</button>
+      </div>
+    </div>
+
+    <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.8rem; color: #777; flex-wrap: wrap; gap: 12px;">
+      <div><span>GRAND SYNTHESIS // SUITE 10</span></div>
+      <div>Designed &amp; Architected by <span style="color: var(--cyan); font-weight: bold;">Antigravity</span> // Google DeepMind Agentic Coding</div>
+      <div><a href="../index.html" style="color: #aaa; text-decoration: none;">← Lab Portal</a> | <a href="../../index.html" style="color: var(--cyan); text-decoration: none;">Master Hub</a></div>
+    </footer>
+  </div>
+
+  <div id="toast-wrap"></div>
+
+  <script>
+    // 3D Three.js Floating Ring
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 22;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('three-bg').appendChild(renderer.domElement);
+
+    const geo = new THREE.TorusGeometry(8, 1.8, 16, 100);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x00F0FF, wireframe: true });
+    const mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', e => {
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      mesh.rotation.x += 0.004;
+      mesh.rotation.y += 0.006;
+      mesh.rotation.x += (mouseY - mesh.rotation.x) * 0.05;
+      mesh.rotation.y += (mouseX - mesh.rotation.y) * 0.05;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 3D Tilt on Cards
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotX = ((y - centerY) / centerY) * -8;
+        const rotY = ((x - centerX) / centerX) * 8;
+        card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+      });
+    });
+
+    // Web Audio Synthesizer Beep & Toast
+    let aCtx = null;
+    function playBeep(freq, msg) {
+      if (!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = aCtx.createOscillator();
+      const gain = aCtx.createGain();
+      osc.frequency.setValueAtTime(freq, aCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, aCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, aCtx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(aCtx.destination);
+      osc.start();
+      osc.stop(aCtx.currentTime + 0.22);
+
+      const wrap = document.getElementById('toast-wrap');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerText = `⚡ ${msg}`;
+      wrap.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }
+  </script>
+</body>
+</html>

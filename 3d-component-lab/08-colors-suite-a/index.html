@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COLOR SUITE A // Aurora Mesh Glow &amp; Analog Noise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #060609; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh; display: grid; place-items: center; position: relative; overflow: hidden; padding: 20px;
+    }
+
+    /* SVG Grain Noise Overlay */
+    .noise-overlay {
+      position: fixed; inset: 0; opacity: 0.045; pointer-events: none; z-index: 100;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Aurora Gradient Mesh */
+    .aurora-mesh {
+      position: fixed; inset: 0; pointer-events: none; z-index: 1; filter: blur(70px);
+      background: radial-gradient(circle at 20% 30%, rgba(255, 90, 31, 0.22), transparent 45%),
+                  radial-gradient(circle at 80% 40%, rgba(0, 240, 255, 0.18), transparent 45%),
+                  radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.2), transparent 50%);
+    }
+
+    /* Mouse Flashlight Tracking */
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(600px circle at var(--cursor-x, 50vw) var(--cursor-y, 50vh), rgba(255, 90, 31, 0.08), transparent 80%);
+      pointer-events: none; z-index: 2;
+    }
+
+    .glass-showcase {
+      position: relative; z-index: 10; max-width: 600px; width: 100%;
+      background: rgba(18, 18, 26, 0.65); backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.12); border-top: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 28px; padding: 48px; box-shadow: 0 30px 70px rgba(0,0,0,0.6); text-align: center;
+    }
+
+    .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #00F0FF; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 16px; display: block; }
+    h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; }
+    p { color: #A0A0B5; line-height: 1.6; margin-bottom: 30px; font-size: 0.95rem; }
+
+    .color-swatches { display: flex; justify-content: center; gap: 12px; }
+    .swatch {
+      width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .swatch:hover { transform: scale(1.15); }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+  <div class="aurora-mesh" id="mesh"></div>
+
+  <div class="glass-showcase">
+    <span class="tag">CHROMATIC ATMOSPHERE</span>
+    <h1>Aurora Mesh &amp; Analog Noise</h1>
+    <p>
+      Eliminates digital flatness using multi-point blur gradients, interactive mouse-following flashlight highlights, and microscopic fractal noise.
+    </p>
+
+    <div class="color-swatches">
+      <div class="swatch" style="background: #FF5A1F;" onclick="setGlow('#FF5A1F')"></div>
+      <div class="swatch" style="background: #00F0FF;" onclick="setGlow('#00F0FF')"></div>
+      <div class="swatch" style="background: #8B5CF6;" onclick="setGlow('#8B5CF6')"></div>
+      <div class="swatch" style="background: #00F5A0;" onclick="setGlow('#00F5A0')"></div>
+    </div>
+  </div>
+
+  <div id="color-toast-dock" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999;"></div>
+
+  <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 0.8rem; color: #777; flex-wrap: wrap; gap: 12px; position: relative; z-index: 10;">
+    <div>SUITE // 08 // AURORA MESH</div>
+    <div>Designed by <strong style="color: #00F0FF;">Antigravity</strong> // Google DeepMind</div>
+    <div><a href="../index.html" style="color: #aaa; text-decoration: none;">← Lab Portal</a></div>
+  </footer>
+
+  <script>
+    window.addEventListener('mousemove', e => {
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+    });
+
+    function setGlow(color) {
+      document.getElementById('mesh').style.background = `radial-gradient(circle at 50% 50%, ${color}33, transparent 70%)`;
+      const dock = document.getElementById('color-toast-dock');
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: rgba(15,15,22,0.9); border: 1px solid ' + color + '; border-radius: 8px; padding: 10px 16px; color: #fff; font-family: monospace; font-size: 0.78rem; box-shadow: 0 0 20px ' + color + '44; transition: all 0.2s ease;';
+      toast.innerText = `🎨 Aurora Mesh Mutated: ${color}`;
+      dock.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 200); }, 2200);
+    }
+  </script>
+</body>
+</html>

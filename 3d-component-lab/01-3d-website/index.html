@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHRONOS // Quantum Gravitational Particle Core</title>
+  
+  <!-- Curated Font Systems: Syne + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Three.js for 3D Hardware Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #040407;
+      --cyan: #00F0FF;
+      --magenta: #FF007A;
+      --orange: #FF6B00;
+      --violet: #8B5CF6;
+      --mint: #00F5A0;
+
+      --cyan-glow: rgba(0, 240, 255, 0.3);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: #FFF;
+      font-family: var(--font-body);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Zero-Asset Analog Noise Filter */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    #webgl-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    /* Spatial HUD Overlay */
+    .hud-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: auto;
+    }
+
+    .brand-mark-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--magenta) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #000;
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    .brand-titles h1 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand-titles span {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .hud-telemetry {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-align: right;
+      color: #8C8CA0;
+      background: rgba(14, 14, 22, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 18px;
+      border-radius: 99px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .hud-telemetry strong {
+      color: var(--cyan);
+    }
+
+    /* Floating Quantum Control Deck */
+    .controls-deck {
+      pointer-events: auto;
+      max-width: 460px;
+      background: rgba(12, 12, 18, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 24px;
+      padding: 26px;
+      backdrop-filter: blur(28px) saturate(180%);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.08);
+      transition: all 0.3s var(--ease-spring);
+    }
+
+    .controls-deck:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .deck-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .deck-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .deck-head h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    /* Topology Mode Selector */
+    .mode-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #8C8CA0;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.1em;
+    }
+
+    .topology-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .topo-btn {
+      padding: 8px 4px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #8E8EA2;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .topo-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    .topo-btn.active {
+      background: var(--cyan);
+      color: #000;
+      border-color: var(--cyan);
+      font-weight: 700;
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    /* Sliders */
+    .slider-row {
+      margin-bottom: 14px;
+    }
+
+    .slider-info {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #A0A0B8;
+      margin-bottom: 6px;
+    }
+
+    .slider-info strong {
+      color: var(--cyan);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* Action Buttons */
+    .deck-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn-warp-pulse {
+      flex: 1;
+      padding: 13px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--magenta) 100%);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    .btn-warp-pulse:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(255, 0, 122, 0.45);
+      filter: brightness(1.1);
+    }
+
+    .btn-warp-pulse:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    .btn-audio-toggle {
+      padding: 13px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-audio-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--cyan);
+    }
+
+    /* Bottom Info & Signature */
+    .bottom-info-deck {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: auto;
+      width: 100%;
+    }
+
+    .instruction-pill {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #72728A;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .signature-card {
+      background: rgba(14, 14, 22, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      padding: 8px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #8C8CA0;
+      backdrop-filter: blur(16px);
+    }
+
+    .signature-card a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .signature-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* Floating Toast HUD */
+    .hud-toast-hub {
+      position: fixed;
+      top: 100px;
+      right: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .hud-toast {
+      background: rgba(12, 12, 18, 0.9);
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #FFF;
+      box-shadow: 0 0 20px var(--cyan-glow);
+      animation: toastSlide 0.25s var(--ease-spring);
+    }
+
+    @keyframes toastSlide {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebGL Canvas -->
+  <div id="webgl-canvas"></div>
+
+  <!-- Spatial HUD Interface -->
+  <div class="hud-layer">
+    
+    <!-- Top Header Bar -->
+    <div class="top-header">
+      <a href="../index.html" class="brand-mark-group">
+        <div class="brand-icon">CH</div>
+        <div class="brand-titles">
+          <h1>CHRONOS // QUANTUM CORE</h1>
+          <span>GPU Gravitational Singularity Environment</span>
+        </div>
+      </a>
+
+      <div class="hud-telemetry">
+        FPS: <strong id="fps-display">60.0</strong> // GPU POINTS: <strong id="pt-display">8,192</strong> // RENDER: <strong style="color: var(--mint);">ONLINE</strong>
+      </div>
+    </div>
+
+    <!-- HUD Notification Deck -->
+    <div class="hud-toast-hub" id="toast-hub"></div>
+
+    <!-- Bottom Controls & Signature -->
+    <div class="bottom-info-deck">
+      
+      <!-- Quantum Control Deck -->
+      <div class="controls-deck">
+        <div class="deck-head">
+          <h3>Gravitational Singularity</h3>
+          <span class="deck-badge" id="active-topo-badge">Nebula Sphere</span>
+        </div>
+
+        <div class="mode-label">Select Morphing Topology:</div>
+        <div class="topology-pills">
+          <button class="topo-btn active" onclick="setTopology('sphere', this)">Sphere</button>
+          <button class="topo-btn" onclick="setTopology('torus', this)">Torus</button>
+          <button class="topo-btn" onclick="setTopology('spiral', this)">Spiral</button>
+          <button class="topo-btn" onclick="setTopology('cube', this)">Tesseract</button>
+        </div>
+
+        <!-- Sliders -->
+        <div class="slider-row">
+          <div class="slider-info">
+            <span>WARP VELOCITY:</span>
+            <strong id="speed-val">1.0x</strong>
+          </div>
+          <input type="range" id="speed-slider" min="0.2" max="3.5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-info">
+            <span>GRAVITATIONAL EXPANSION:</span>
+            <strong id="radius-val">10.0 AU</strong>
+          </div>
+          <input type="range" id="radius-slider" min="5" max="22" step="0.5" value="10.0" oninput="updateRadius(this.value)">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="deck-actions">
+          <button class="btn-warp-pulse" onclick="triggerQuantumBurst()">Trigger Quantum Burst</button>
+          <button class="btn-audio-toggle" id="audio-btn" onclick="toggleAudioEngine()">🔊 AUDIO ON</button>
+        </div>
+      </div>
+
+      <!-- Right Side Signature & Navigation Note -->
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+        <div class="instruction-pill">
+          <span style="color: var(--cyan);">●</span> Drag mouse across space to warp gravitational lens
+        </div>
+
+        <!-- Small Note: Designed by Antigravity -->
+        <div class="signature-card">
+          Designed &amp; Architected by <a href="../../index.html">Antigravity</a> // Google DeepMind
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Interactive 3D WebGL Engine & Synthesized Web Audio -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. Three.js Scene, Camera & Renderer
+    // -------------------------------------------------------------------------
+    const container = document.getElementById('webgl-canvas');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x040407, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 28;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x040407, 1);
+    container.appendChild(renderer.domElement);
+
+    // -------------------------------------------------------------------------
+    // 2. High-Density Particle Topology Engine (8,192 Points)
+    // -------------------------------------------------------------------------
+    const PARTICLE_COUNT = 8192;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const targetPositions = new Float32Array(PARTICLE_COUNT * 3);
+    const colors = new Float32Array(PARTICLE_COUNT * 3);
+
+    // Color Palette: Cyan -> Electric Magenta -> Amber
+    const c1 = new THREE.Color(0x00F0FF);
+    const c2 = new THREE.Color(0xFF007A);
+    const c3 = new THREE.Color(0xFF6B00);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const ratio = i / PARTICLE_COUNT;
+      let vertexColor = new THREE.Color();
+      if (ratio < 0.5) {
+        vertexColor.lerpColors(c1, c2, ratio * 2);
+      } else {
+        vertexColor.lerpColors(c2, c3, (ratio - 0.5) * 2);
+      }
+      colors[i * 3] = vertexColor.r;
+      colors[i * 3 + 1] = vertexColor.g;
+      colors[i * 3 + 2] = vertexColor.b;
+    }
+
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    // Procedural Shape Generators
+    let currentRadius = 10.0;
+
+    function generateSphere(target, radius) {
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const u = Math.random();
+        const v = Math.random();
+        const theta = u * 2.0 * Math.PI;
+        const phi = Math.acos(2.0 * v - 1.0);
+        const r = radius + (Math.random() - 0.5) * 2.5;
+
+        target[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        target[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        target[i * 3 + 2] = r * Math.cos(phi);
+      }
+    }
+
+    function generateTorus(target, radius) {
+      const R = radius * 0.9;
+      const r_tube = radius * 0.35;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const u = Math.random() * Math.PI * 2;
+        const v = Math.random() * Math.PI * 2;
+        target[i * 3] = (R + r_tube * Math.cos(v)) * Math.cos(u);
+        target[i * 3 + 1] = (R + r_tube * Math.cos(v)) * Math.sin(u);
+        target[i * 3 + 2] = r_tube * Math.sin(v) + (Math.random() - 0.5) * 1.5;
+      }
+    }
+
+    function generateSpiral(target, radius) {
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const angle = i * 0.08;
+        const dist = (i / PARTICLE_COUNT) * radius * 1.5;
+        const zJitter = (Math.random() - 0.5) * 4 * (1 - (i / PARTICLE_COUNT));
+        target[i * 3] = Math.cos(angle) * dist + (Math.random() - 0.5);
+        target[i * 3 + 1] = Math.sin(angle) * dist + (Math.random() - 0.5);
+        target[i * 3 + 2] = zJitter;
+      }
+    }
+
+    function generateCube(target, radius) {
+      const s = radius * 1.3;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        target[i * 3] = (Math.random() - 0.5) * s;
+        target[i * 3 + 1] = (Math.random() - 0.5) * s;
+        target[i * 3 + 2] = (Math.random() - 0.5) * s;
+      }
+    }
+
+    // Initialize in Sphere
+    generateSphere(positions, currentRadius);
+    generateSphere(targetPositions, currentRadius);
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    // Particle Shader Material
+    const particleMaterial = new THREE.PointsMaterial({
+      size: 0.22,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+
+    const particleSystem = new THREE.Points(geometry, particleMaterial);
+    scene.add(particleSystem);
+
+    // Inner Pulsating Holographic Tesseract Core
+    const coreGeo = new THREE.IcosahedronGeometry(4.2, 1);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0x00F0FF,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.4
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(coreMesh);
+
+    // Outer Gyroscope Rings
+    const ringGeo1 = new THREE.TorusGeometry(8, 0.06, 16, 100);
+    const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xFF007A, transparent: true, opacity: 0.35 });
+    const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+    scene.add(ring1);
+
+    const ringGeo2 = new THREE.TorusGeometry(11, 0.06, 16, 100);
+    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x00F0FF, transparent: true, opacity: 0.25 });
+    const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+    ring2.rotation.x = Math.PI / 2;
+    scene.add(ring2);
+
+    // -------------------------------------------------------------------------
+    // 3. Web Audio Synthesizer Engine
+    // -------------------------------------------------------------------------
+    let audioCtx = null;
+    let audioEnabled = true;
+    let droneOsc = null;
+    let droneGain = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        // Ambient Sub-Bass Drone
+        droneOsc = audioCtx.createOscillator();
+        droneGain = audioCtx.createGain();
+        droneOsc.type = 'sawtooth';
+        droneOsc.frequency.setValueAtTime(55, audioCtx.currentTime); // A1 note
+        droneGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(160, audioCtx.currentTime);
+
+        droneOsc.connect(filter);
+        filter.connect(droneGain);
+        droneGain.connect(audioCtx.destination);
+        droneOsc.start();
+      } catch (e) {}
+    }
+
+    function playWarpSweep() {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.35);
+      osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 0.7);
+
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.75);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.75);
+    }
+
+    function toggleAudioEngine() {
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById('audio-btn');
+      if (audioEnabled) {
+        initAudio();
+        if (droneGain) droneGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+        btn.innerText = '🔊 AUDIO ON';
+        showToast('Synthesizer Graph: Connected');
+      } else {
+        if (droneGain) droneGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+        btn.innerText = '🔇 MUTED';
+        showToast('Synthesizer Graph: Muted');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Interactive Gravity & Topology Switching
+    // -------------------------------------------------------------------------
+    let activeTopology = 'sphere';
+
+    function setTopology(type, btn) {
+      activeTopology = type;
+      document.querySelectorAll('.topo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const labels = {
+        sphere: 'Nebula Sphere',
+        torus: 'Quantum Torus',
+        spiral: 'Fibonacci Galaxy',
+        cube: 'Dimensional Hypercube'
+      };
+      document.getElementById('active-topo-badge').innerText = labels[type];
+
+      if (type === 'sphere') generateSphere(targetPositions, currentRadius);
+      else if (type === 'torus') generateTorus(targetPositions, currentRadius);
+      else if (type === 'spiral') generateSpiral(targetPositions, currentRadius);
+      else if (type === 'cube') generateCube(targetPositions, currentRadius);
+
+      playWarpSweep();
+      showToast(`Morphing topology to: ${labels[type]}`);
+    }
+
+    let speedMultiplier = 1.0;
+    function updateSpeed(val) {
+      speedMultiplier = parseFloat(val);
+      document.getElementById('speed-val').innerText = `${speedMultiplier.toFixed(1)}x`;
+    }
+
+    function updateRadius(val) {
+      currentRadius = parseFloat(val);
+      document.getElementById('radius-val').innerText = `${currentRadius.toFixed(1)} AU`;
+      setTopology(activeTopology, document.querySelector('.topo-btn.active'));
+    }
+
+    let burstIntensity = 0;
+    function triggerQuantumBurst() {
+      burstIntensity = 1.8;
+      playWarpSweep();
+      showToast('⚡ QUANTUM BURST: Gravitational shockwave discharged!');
+    }
+
+    function showToast(msg) {
+      const hub = document.getElementById('toast-hub');
+      const toast = document.createElement('div');
+      toast.className = 'hud-toast';
+      toast.innerText = msg;
+      hub.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Mouse Gravitational Lens Interaction
+    // -------------------------------------------------------------------------
+    let mouseX = 0, mouseY = 0;
+    let targetCameraX = 0, targetCameraY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+      targetCameraX = mouseX * 6;
+      targetCameraY = mouseY * 6;
+    });
+
+    // -------------------------------------------------------------------------
+    // 6. Animation Physics Loop
+    // -------------------------------------------------------------------------
+    let lastTime = performance.now();
+    let frameCount = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // FPS Counter
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        document.getElementById('fps-display').innerText = `${frameCount}.0`;
+        frameCount = 0;
+        lastTime = now;
+      }
+
+      // Smooth Particle Morphing & Gravitational Jitter
+      const posAttr = geometry.attributes.position;
+      const posArray = posAttr.array;
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const idx = i * 3;
+        // Interpolate towards target positions
+        posArray[idx] += (targetPositions[idx] - posArray[idx]) * 0.04;
+        posArray[idx + 1] += (targetPositions[idx + 1] - posArray[idx + 1]) * 0.04;
+        posArray[idx + 2] += (targetPositions[idx + 2] - posArray[idx + 2]) * 0.04;
+
+        // Apply Quantum Burst Expansion
+        if (burstIntensity > 0) {
+          posArray[idx] += (Math.random() - 0.5) * burstIntensity * 1.2;
+          posArray[idx + 1] += (Math.random() - 0.5) * burstIntensity * 1.2;
+          posArray[idx + 2] += (Math.random() - 0.5) * burstIntensity * 1.2;
+        }
+      }
+      posAttr.needsUpdate = true;
+
+      if (burstIntensity > 0) {
+        burstIntensity -= 0.04;
+        if (burstIntensity < 0) burstIntensity = 0;
+      }
+
+      // Rotations & Speeds
+      particleSystem.rotation.y += 0.003 * speedMultiplier;
+      particleSystem.rotation.x += 0.001 * speedMultiplier;
+
+      coreMesh.rotation.y -= 0.008 * speedMultiplier;
+      coreMesh.rotation.z += 0.005 * speedMultiplier;
+
+      ring1.rotation.x += 0.004 * speedMultiplier;
+      ring1.rotation.y += 0.006 * speedMultiplier;
+
+      ring2.rotation.y -= 0.005 * speedMultiplier;
+      ring2.rotation.z -= 0.003 * speedMultiplier;
+
+      // Mouse Camera Parallax
+      camera.position.x += (targetCameraX - camera.position.x) * 0.05;
+      camera.position.y += (targetCameraY - camera.position.y) * 0.05;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start audio on first user click
+    window.addEventListener('click', () => {
+      if (audioEnabled) initAudio();
+    }, { once: true });
+  </script>
+
+</body>
+</html>

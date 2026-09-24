@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TYPOGRAPHY SUITE A // Fluid Clamp &amp; Luxury Editorial Scale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F9F7F2;
+      --espresso: #1A1615;
+      --ochre: #C29B38;
+      --font-editorial: 'Playfair Display', Georgia, serif;
+      --font-display: 'Cinzel', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Fluid Clamp Formulas */
+      --fluid-hero: clamp(2.8rem, 6vw + 1rem, 5.5rem);
+      --fluid-h1: clamp(2rem, 3.5vw + 0.5rem, 3.6rem);
+      --fluid-body: clamp(0.95rem, 0.4vw + 0.8rem, 1.15rem);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--espresso); font-family: var(--font-body); padding: 60px 30px;
+      line-height: 1.65; max-width: 1000px; margin: 0 auto;
+    }
+
+    .meta-tag {
+      font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--ochre); margin-bottom: 24px; display: block;
+    }
+    .hero-type {
+      font-family: var(--font-editorial); font-size: var(--fluid-hero); font-weight: 800;
+      line-height: 1.08; letter-spacing: -0.035em; margin-bottom: 24px;
+    }
+    .cinzel-sub {
+      font-family: var(--font-display); font-size: var(--fluid-h1); font-weight: 600; letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+    .body-type { font-size: var(--fluid-body); font-weight: 300; color: #4A4644; max-width: 680px; margin-bottom: 30px; }
+
+    .spec-table {
+      width: 100%; border-collapse: collapse; margin-top: 50px; font-family: var(--font-mono); font-size: 0.8rem;
+    }
+    .spec-table th, .spec-table td { padding: 12px; border-bottom: 1px solid rgba(26, 22, 21, 0.15); text-align: left; }
+    .spec-table th { color: var(--ochre); }
+  </style>
+</head>
+<body>
+  <span class="meta-tag">EDITION MMXXVI // TYPOGRAPHIC ARCHITECTURE</span>
+
+  <h1 class="hero-type">The Architecture of Pure Legibility.</h1>
+  <h2 class="cinzel-sub">CLASSICAL SERIF HARMONY</h2>
+  <p class="body-type">
+    Never use static pixel formulas that break on mobile viewports. By configuring CSS fluid clamp functions (`clamp(min, preferred, max)`), typography scales mathematically across every device dimension with zero abrupt breakpoints.
+  </p>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>TOKEN</th><th>FONT FAMILY</th><th>FORMULA</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>--text-hero</td><td>Playfair Display</td><td>clamp(2.8rem, 6vw + 1rem, 5.5rem)</td></tr>
+      <tr><td>--text-h1</td><td>Cinzel</td><td>clamp(2rem, 3.5vw + 0.5rem, 3.6rem)</td></tr>
+      <tr><td>--text-body</td><td>Plus Jakarta Sans</td><td>clamp(0.95rem, 0.4vw + 0.8rem, 1.15rem)</td></tr>
+      <tr><td>--text-mono</td><td>JetBrains Mono</td><td>Tracking: 0.22em // Upper</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

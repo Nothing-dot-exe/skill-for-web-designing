@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D &amp; COMPONENT DESIGN LAB // Master Index</title>
+  
+  <!-- Curated Font Systems: Syne + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       1. CANONICAL TOKENS & SYSTEM VARIABLES (From anti-basic-web-design SKILL.md)
+       ========================================================================== */
+    :root {
+      --bg-base: #060608;
+      --bg-surface: #0e0e13;
+      --bg-elevated: #15151e;
+      --bg-glass: rgba(18, 18, 26, 0.7);
+
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-specular: rgba(255, 255, 255, 0.22);
+      --border-bright: rgba(255, 255, 255, 0.15);
+
+      --cyan: #00F0FF;
+      --orange: #FF5A1F;
+      --violet: #8B5CF6;
+      --gold: #C29B38;
+      --mint: #00F5A0;
+      --amber: #FFB800;
+
+      --cyan-glow: rgba(0, 240, 255, 0.25);
+      --orange-glow: rgba(255, 90, 31, 0.25);
+
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Fluid Modular Typography (Ratio 1.333) */
+      --text-hero: clamp(2.4rem, 5vw + 1rem, 4.6rem);
+      --text-h2: clamp(1.6rem, 2.5vw + 0.5rem, 2.4rem);
+      --text-h3: clamp(1.15rem, 1.2vw + 0.4rem, 1.45rem);
+      --text-body: clamp(0.92rem, 0.3vw + 0.8rem, 1.05rem);
+      --text-micro: 0.72rem;
+
+      /* Snappy Spring Curves */
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      /* Multi-Layer Bézier Diffused Shadow Falloff */
+      --shadow-diffuse:
+        0 2px 4px rgba(0, 0, 0, 0.04),
+        0 6px 12px rgba(0, 0, 0, 0.06),
+        0 14px 28px rgba(0, 0, 0, 0.08),
+        0 28px 56px rgba(0, 0, 0, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: #F0F0F5;
+      font-family: var(--font-body);
+      font-size: var(--text-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Zero-Asset Analog Noise Filter */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Ambient Cursor Spotlight Glow */
+    .spotlight-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(800px circle at var(--cursor-x, 50vw) var(--cursor-y, 30vh), rgba(0, 240, 255, 0.05), transparent 70%),
+                  radial-gradient(600px circle at 80% 20%, rgba(255, 90, 31, 0.04), transparent 60%);
+    }
+
+    /* Custom Sleek Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 60px 24px 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       2. TOP BAR & NAVIGATION
+       ========================================================================== */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 60px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--orange) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #000;
+      font-size: 1.1rem;
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .brand-text h2 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      color: #7A7A8E;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .designer-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #A0A0B2;
+      backdrop-filter: blur(12px);
+    }
+
+    .designer-pill strong {
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 8px var(--mint);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* ==========================================================================
+       3. HERO HEADER
+       ========================================================================== */
+    .hero {
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 54px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 99px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: var(--text-micro);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.15);
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-hero);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+      background: linear-gradient(180deg, #FFFFFF 30%, #8E8EA0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p.sub {
+      color: #9292A6;
+      font-size: 1.12rem;
+      line-height: 1.65;
+      max-width: 680px;
+      margin: 0 auto 36px;
+    }
+
+    /* Search & Filter Controls */
+    .controls-shelf {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(16px);
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 16px 11px 40px;
+      border-radius: 99px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      color: #FFF;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6C6C80;
+      pointer-events: none;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-pill {
+      padding: 8px 16px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: #8E8EA2;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .filter-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    .filter-pill.active {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    /* ==========================================================================
+       4. CARDS GRID WITH 3D TILT & LASER SPOTLIGHT BORDERS
+       ========================================================================== */
+    .suites-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+
+    /* Asymmetric Bento Span Formula */
+    .suite-card {
+      grid-column: span 4;
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--border-specular);
+      box-shadow: var(--shadow-diffuse);
+      transition: transform 0.25s var(--ease-spring), border-color 0.25s ease, box-shadow 0.25s ease;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+
+    /* Featured Highlight Spans */
+    .suite-card.span-hero { grid-column: span 8; }
+    .suite-card.span-tall { grid-column: span 4; }
+    .suite-card.span-full { grid-column: span 12; }
+
+    @media (max-width: 1024px) {
+      .suite-card, .suite-card.span-hero, .suite-card.span-tall, .suite-card.span-full {
+        grid-column: span 12;
+      }
+    }
+
+    /* Laser Spotlight Dynamic Border */
+    .suite-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(350px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(0, 240, 255, 0.35), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .suite-card:hover::before {
+      opacity: 1;
+    }
+
+    .suite-card:hover {
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tag-3d { background: rgba(0, 240, 255, 0.12); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .tag-btn { background: rgba(255, 90, 31, 0.12); color: var(--orange); border: 1px solid rgba(255, 90, 31, 0.3); }
+    .tag-card { background: rgba(139, 92, 246, 0.12); color: var(--violet); border: 1px solid rgba(139, 92, 246, 0.3); }
+    .tag-font { background: rgba(194, 155, 56, 0.12); color: var(--gold); border: 1px solid rgba(194, 155, 56, 0.3); }
+    .tag-color { background: rgba(0, 245, 160, 0.12); color: var(--mint); border: 1px solid rgba(0, 245, 160, 0.3); }
+    .tag-master { background: rgba(255, 184, 0, 0.18); color: var(--amber); border: 1px solid var(--amber); }
+
+    .card-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #6C6C82;
+    }
+
+    .suite-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      color: #FFF;
+    }
+
+    .suite-card p {
+      color: #8E8EA2;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 26px;
+    }
+
+    /* Specs Pills inside cards */
+    .card-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+
+    .spec-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #8A8A9E;
+    }
+
+    /* Tactile Launch Button */
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-bright);
+      color: #FFF;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .btn-launch:hover {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #000;
+      font-weight: 700;
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px var(--cyan-glow);
+    }
+
+    .btn-launch:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    .btn-launch.btn-grand {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--orange) 100%);
+      border: none;
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 0 30px var(--cyan-glow);
+    }
+
+    .btn-launch.btn-grand:hover {
+      box-shadow: 0 0 45px var(--orange-glow);
+      filter: brightness(1.1);
+    }
+
+    /* ==========================================================================
+       5. FOOTER & SIGNATURE NOTE
+       ========================================================================== */
+    footer {
+      margin-top: 100px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: #6C6C82;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFF;
+      font-weight: 700;
+    }
+
+    .footer-credit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-credit a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .footer-credit a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Cursor Spotlight -->
+  <div class="spotlight-bg"></div>
+
+  <div class="container">
+    
+    <!-- Top Bar Navigation -->
+    <nav class="top-nav">
+      <a href="#" class="brand-identity">
+        <div class="brand-logo-mark">AG</div>
+        <div class="brand-text">
+          <h2>3D &amp; COMPONENT LAB</h2>
+          <span>Agency-Grade Component Testbed</span>
+        </div>
+      </a>
+
+      <!-- Small Note: Designed by Antigravity -->
+      <div class="designer-pill">
+        <span class="pulse-dot"></span>
+        <span>Architected &amp; Designed by <strong>Antigravity</strong> // DeepMind</span>
+      </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">Curated Against Anti-Basic Vibe Coding Skill v2.0</div>
+      <h1>3D &amp; Component Design Lab</h1>
+      <p class="sub">
+        Exhaustive testbed for pure 3D WebGL, tactile button physics, multi-layer shadow diffusion, 3D card tilt, fluid typographic ratios, and the complete grand component synthesis.
+      </p>
+
+      <!-- Live Search & Category Controls -->
+      <div class="controls-shelf">
+        <div class="search-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="suite-search" class="search-input" placeholder="Search test suites (e.g. 3D, physics, tilt, colors)..." oninput="filterSuites()" />
+        </div>
+
+        <div class="filter-pills">
+          <button class="filter-pill active" onclick="setCategory('all', this)">All (11)</button>
+          <button class="filter-pill" onclick="setCategory('3d', this)">3D WebGL</button>
+          <button class="filter-pill" onclick="setCategory('buttons', this)">Buttons</button>
+          <button class="filter-pill" onclick="setCategory('cards', this)">Cards</button>
+          <button class="filter-pill" onclick="setCategory('typography', this)">Typography</button>
+          <button class="filter-pill" onclick="setCategory('colors', this)">Colors</button>
+          <button class="filter-pill" onclick="setCategory('master', this)">Synthesis</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Suites Bento Grid -->
+    <main class="suites-grid" id="suites-container">
+
+      <!-- 01: 3D WebGL Particle Sphere (Span Hero 8) -->
+      <div class="suite-card span-hero" data-cat="3d" data-title="Orbital Particle Sphere Three.js WebGL Core">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-3d">Pure 3D WebGL</span>
+            <span class="card-num">SUITE // 01</span>
+          </div>
+          <h3>Orbital Particle Sphere &amp; Quantum Warp</h3>
+          <p>
+            Full-scale Three.js particle sphere composed of 3,000 GPU points with dynamic cursor vector repulsion, procedural octahedron core geometry, responsive perspective, and interactive quantum warp speed pulse.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Three.js r128</span>
+            <span class="spec-pill">3,000 Points</span>
+            <span class="spec-pill">60 FPS Hardware Render</span>
+            <span class="spec-pill">Quantum Physics Trigger</span>
+          </div>
+        </div>
+        <a href="01-3d-website/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch 3D WebGL Environment ➔
+        </a>
+      </div>
+
+      <!-- 02: Buttons Suite A (Span 4) -->
+      <div class="suite-card" data-cat="buttons" data-title="Cyber Magnetic Buttons Radial Glow">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-btn">Buttons A</span>
+            <span class="card-num">SUITE // 02</span>
+          </div>
+          <h3>Cyber &amp; Magnetic Buttons</h3>
+          <p>
+            SaaS cyber buttons with multi-tier radial bloom, magnetic cursor attraction physics hook, rotating conic shimmer border beams, and neon status pills.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Magnetic Cursor Hook</span>
+            <span class="spec-pill">Radial Bloom Glow</span>
+            <span class="spec-pill">Conic Shimmer Beam</span>
+          </div>
+        </div>
+        <a href="02-buttons-suite-a/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Buttons Suite A ➔
+        </a>
+      </div>
+
+      <!-- 03: Buttons Suite B (Span 4) -->
+      <div class="suite-card" data-cat="buttons" data-title="Tactile Audio Feedback Neo Brutalist Claymorphism">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-btn">Buttons B</span>
+            <span class="card-num">SUITE // 03</span>
+          </div>
+          <h3>Tactile &amp; Audio Feedback Buttons</h3>
+          <p>
+            Neo-Brutalist 4px offset translation click physics, 3D inflated claymorphism cushion, liquid fill hover slides, and synthesized Web Audio click frequencies.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Web Audio Synthesizer</span>
+            <span class="spec-pill">Neo-Brutalist Offset</span>
+            <span class="spec-pill">Claymorphism Cushion</span>
+          </div>
+        </div>
+        <a href="03-buttons-suite-b/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Buttons Suite B ➔
+        </a>
+      </div>
+
+      <!-- 04: Cards Suite A (Span 4) -->
+      <div class="suite-card" data-cat="cards" data-title="3D Perspective Tilt Dynamic Spotlight Border">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-card">Cards A</span>
+            <span class="card-num">SUITE // 04</span>
+          </div>
+          <h3>3D Perspective Tilt &amp; Spotlight</h3>
+          <p>
+            Hardware-accelerated perspective tilt calculating real-time rotateX and rotateY physics with dynamic laser radial spotlight border highlights following cursor coordinates.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">rotateX/rotateY Math</span>
+            <span class="spec-pill">Laser Radial Spotlight</span>
+            <span class="spec-pill">Zero Layout Shift</span>
+          </div>
+        </div>
+        <a href="04-cards-suite-a/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Cards Suite A ➔
+        </a>
+      </div>
+
+      <!-- 05: Cards Suite B (Span 4) -->
+      <div class="suite-card" data-cat="cards" data-title="Neumorphism Dark 3D Flip Card">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-card">Cards B</span>
+            <span class="card-num">SUITE // 05</span>
+          </div>
+          <h3>Neumorphic &amp; 3D Flip Cards</h3>
+          <p>
+            Dark mode soft UI surfaces with dual-vector extruded and inset shadows, paired with an interactive 180-degree 3D flip card maintaining distinct client-side state.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Dual-Vector Soft UI</span>
+            <span class="spec-pill">180° 3D Flip Axis</span>
+            <span class="spec-pill">Backdrop Quartz Glass</span>
+          </div>
+        </div>
+        <a href="05-cards-suite-b/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Cards Suite B ➔
+        </a>
+      </div>
+
+      <!-- 06: Typography Suite A (Span 4) -->
+      <div class="suite-card" data-cat="typography" data-title="Editorial Fluid Clamp Typography Scale Luxury Serif">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-font">Typography A</span>
+            <span class="card-num">SUITE // 06</span>
+          </div>
+          <h3>Editorial Fluid Clamp Scale</h3>
+          <p>
+            Classical luxury serif hierarchy (Playfair Display &amp; Cinzel) with mathematical clamp() fluid sizing formulas, optical kerning tokens, and zero layout shift.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Modular Ratio 1.333</span>
+            <span class="spec-pill">Fluid clamp() Formulas</span>
+            <span class="spec-pill">Cinzel &amp; Playfair Display</span>
+          </div>
+        </div>
+        <a href="06-typography-suite-a/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Typography Suite A ➔
+        </a>
+      </div>
+
+      <!-- 07: Typography Suite B (Span 4) -->
+      <div class="suite-card" data-cat="typography" data-title="Kinetic Marquee Matrix Text Decoder Scramble">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-font">Typography B</span>
+            <span class="card-num">SUITE // 07</span>
+          </div>
+          <h3>Kinetic &amp; Decoder Scramble</h3>
+          <p>
+            Non-stop infinite marquee ticker ribbon paired with an interactive matrix scramble text decoder that recalculates character glyphs dynamically on hover.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Continuous Marquee Ribbon</span>
+            <span class="spec-pill">Matrix Glyph Scrambler</span>
+            <span class="spec-pill">JetBrains Mono</span>
+          </div>
+        </div>
+        <a href="07-typography-suite-b/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Typography Suite B ➔
+        </a>
+      </div>
+
+      <!-- 08: Colors Suite A (Span 4) -->
+      <div class="suite-card" data-cat="colors" data-title="Aurora Mesh Analog Noise Overlay Flashlight">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-color">Colors A</span>
+            <span class="card-num">SUITE // 08</span>
+          </div>
+          <h3>Aurora Mesh &amp; Analog Noise</h3>
+          <p>
+            Multi-point radial blur glow mesh, high-frequency zero-asset SVG analog grain noise to eliminate digital flatness, and interactive cursor flashlight tracking.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Multi-Stop Aurora Mesh</span>
+            <span class="spec-pill">SVG Fractal Noise Texture</span>
+            <span class="spec-pill">Cursor Flashlight Beam</span>
+          </div>
+        </div>
+        <a href="08-colors-suite-a/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Colors Suite A ➔
+        </a>
+      </div>
+
+      <!-- 09: Colors Suite B (Span 4) -->
+      <div class="suite-card" data-cat="colors" data-title="Dynamic Palette Mutation Token Engine Themes">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-color">Colors B</span>
+            <span class="card-num">SUITE // 09</span>
+          </div>
+          <h3>Dynamic Theme Matrix</h3>
+          <p>
+            Instant real-time switching between Linear Dark, Neo-Brutalist, Luxury Alabaster, and Cyber Void CSS tokens with persistent localStorage memory.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">4 Design Archetypes</span>
+            <span class="spec-pill">Instant Token Mutation</span>
+            <span class="spec-pill">localStorage Persistence</span>
+          </div>
+        </div>
+        <a href="09-colors-suite-b/index.html" class="btn-launch" target="_blank" onclick="playAudioChime()">
+          Launch Colors Suite B ➔
+        </a>
+      </div>
+
+      <!-- 11: Flagship Black Hole Singularity (Span Hero 8) -->
+      <div class="suite-card span-hero" data-cat="3d master" data-title="GARGANTUA Kerr Black Hole Relativistic Accretion Disk Physics Singularity Three js" style="border-color: rgba(255, 184, 0, 0.4); box-shadow: 0 0 50px rgba(255, 184, 0, 0.12);">
+        <div>
+          <div class="card-head">
+            <span class="card-tag" style="background: rgba(255, 184, 0, 0.15); color: var(--amber); border: 1px solid var(--amber);">Flagship 3D Relativistic</span>
+            <span class="card-num" style="color: var(--amber); font-weight: 700;">SUITE // 11</span>
+          </div>
+          <h3 style="font-size: 1.6rem; color: #FFF;">GARGANTUA // Relativistic Black Hole Simulation</h3>
+          <p>
+            Real-time Kerr black hole spacetime simulation: 12,000 Keplerian accretion particles with relativistic Doppler beaming (approaching side blueshifted, receding side redshifted), dual polar gamma-ray plasma jets, photon sphere gravitational lensing, and interactive time dilation controls.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">12,000 Keplerian Particles</span>
+            <span class="spec-pill">Doppler Beaming Effect</span>
+            <span class="spec-pill">Polar Plasma Jets</span>
+            <span class="spec-pill">Time Dilation Controls</span>
+          </div>
+        </div>
+        <a href="11-black-hole-singularity/index.html" class="btn-launch" style="background: linear-gradient(135deg, var(--amber) 0%, var(--orange) 100%); color: #000; font-weight: 800; border: none; box-shadow: 0 0 25px rgba(255, 184, 0, 0.35);" target="_blank" onclick="playAudioChime()">
+          Launch GARGANTUA Black Hole Simulation ➔
+        </a>
+      </div>
+
+      <!-- 10: Grand Synthesis (Span 4) -->
+      <div class="suite-card" data-cat="master" data-title="The Grand Synthesis Full Convergence Three js Wireframe Sound Audio" style="border-color: rgba(0, 240, 255, 0.4); box-shadow: 0 0 40px rgba(0, 240, 255, 0.12);">
+        <div>
+          <div class="card-head">
+            <span class="card-tag tag-master">Grand Synthesis</span>
+            <span class="card-num" style="color: var(--cyan); font-weight: 700;">SUITE // 10</span>
+          </div>
+          <h3>The Complete Convergence</h3>
+          <p>
+            The master convergence: Three.js wireframe torus, cyber glow buttons, neo-brutalist buttons, 3D tilt cards, and Web Audio synthesizers.
+          </p>
+          <div class="card-specs">
+            <span class="spec-pill">Unified Master Synthesis</span>
+            <span class="spec-pill">Three.js Torus Geometry</span>
+            <span class="spec-pill">Web Audio Synthesizer</span>
+          </div>
+        </div>
+        <a href="10-the-grand-synthesis/index.html" class="btn-launch btn-grand" target="_blank" onclick="playAudioChime()">
+          Launch Suite 10 Convergence ➔
+        </a>
+      </div>
+
+    </main>
+
+    <!-- Footer with Discrete Signature Note -->
+    <footer>
+      <div class="footer-left">
+        <span class="footer-badge">ANTIGRAVITY // IDE</span>
+        <span>Anti-Basic Vibe Coding Skill v2.0 Production Testbed</span>
+      </div>
+
+      <!-- Small Note: Designed by Antigravity -->
+      <div class="footer-credit">
+        <span>Designed &amp; Architected by <a href="https://github.com" target="_blank">Antigravity</a> // Google DeepMind Agentic Coding</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Interactive Mechanics: Spotlight, 3D Tilt, Audio Synthesis, and Filtering -->
+  <script>
+    // 1. Mouse Spotlight Tracker
+    window.addEventListener('mousemove', (e) => {
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+    });
+
+    // 2. 3D Tilt & Dynamic Spotlight on Cards
+    document.querySelectorAll('.suite-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotX = ((y - centerY) / centerY) * -5;
+        const rotY = ((x - centerX) / centerX) * 5;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.015, 1.015, 1.015)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+
+    // 3. Synthesized Web Audio Soft Feedback
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playAudioChime() {
+      try {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } catch (e) {
+        // Fallback gracefully if audio blocked
+      }
+    }
+
+    // 4. Live Search Filter
+    let activeCat = 'all';
+
+    function setCategory(cat, btn) {
+      activeCat = cat;
+      document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterSuites();
+    }
+
+    function filterSuites() {
+      const query = document.getElementById('suite-search').value.toLowerCase();
+      document.querySelectorAll('.suite-card').forEach(card => {
+        const cat = card.dataset.cat;
+        const title = card.dataset.title.toLowerCase();
+        const matchesQuery = title.includes(query);
+        const matchesCat = (activeCat === 'all') || (cat === activeCat);
+        card.style.display = (matchesQuery && matchesCat) ? 'flex' : 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>

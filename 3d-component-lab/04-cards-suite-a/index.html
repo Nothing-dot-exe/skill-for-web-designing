@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CARDS SUITE A // 3D Perspective Tilt &amp; Spotlight Physics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07070A;
+      --card-bg: #101017;
+      --accent: #FF5A1F;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+    body {
+      background: var(--bg); color: #fff; padding: 60px 20px; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; text-align: center; }
+    p { color: #888; margin-bottom: 50px; text-align: center; }
+
+    .cards-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%; max-width: 1050px;
+    }
+
+    /* 3D Tilt Card with Radial Spotlight */
+    .tilt-card {
+      position: relative; background: var(--card-bg); border-radius: 24px; padding: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5); transform-style: preserve-3d;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+      cursor: pointer; overflow: hidden;
+    }
+
+    .tilt-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+      background: radial-gradient(350px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255, 90, 31, 0.6), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .tilt-card:hover::before { opacity: 1; }
+
+    .card-badge {
+      display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent);
+      background: rgba(255, 90, 31, 0.1); border: 1px solid rgba(255, 90, 31, 0.3); padding: 4px 12px;
+      border-radius: 99px; text-transform: uppercase; margin-bottom: 20px;
+    }
+    h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+    .card-text { color: #8C8C9E; font-size: 0.95rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>CARDS SUITE A // 3D TILT &amp; SPOTLIGHT</h1>
+  <p>Move your cursor over the cards to observe true 3D perspective tilt and radial laser borders.</p>
+
+  <div class="cards-row">
+    <div class="tilt-card">
+      <span class="card-badge">INTERACTIVE PHYSICS</span>
+      <h3>Reactive Tilt Vector</h3>
+      <p class="card-text">
+        Tracks cursor coordinates in real-time to compute mathematical rotateX and rotateY angles with spring physics easing.
+      </p>
+    </div>
+
+    <div class="tilt-card">
+      <span class="card-badge">LIGHT SHIELD</span>
+      <h3>Radial Spotlight Sheen</h3>
+      <p class="card-text">
+        Dynamically positions a 350px CSS radial gradient along card boundaries, simulating an overhead specular spotlight.
+      </p>
+    </div>
+
+    <div class="tilt-card">
+      <span class="card-badge">GLASS ELEVATION</span>
+      <h3>Multi-Tier Elevation</h3>
+      <p class="card-text">
+        Top border highlight paired with 60px ambient drop shadows creates genuine optical depth on OLED dark displays.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotX = ((y - centerY) / centerY) * -10;
+        const rotY = ((x - centerX) / centerX) * 10;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+  </script>
+</body>
+</html>

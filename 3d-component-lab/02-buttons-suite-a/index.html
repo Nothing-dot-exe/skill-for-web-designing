@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BUTTONS SUITE A // High-Craft Modern SaaS &amp; Cyber</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090D;
+      --accent: #FF5A1F;
+      --cyan: #00F0FF;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 60px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
+    }
+    h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
+    p { color: #888; margin-bottom: 50px; }
+
+    .grid-buttons {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; width: 100%; max-width: 900px;
+    }
+    .box {
+      background: #111118; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 36px 24px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #666; text-transform: uppercase; }
+
+    /* Button 1: Glowing Cyber Button */
+    .btn-glow {
+      padding: 14px 32px; border-radius: 99px; background: linear-gradient(180deg, #242430 0%, #101016 100%);
+      color: #fff; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 0 20px rgba(255, 90, 31, 0.25);
+      cursor: pointer; transition: all 0.3s var(--ease);
+    }
+    .btn-glow:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 0 35px rgba(255, 90, 31, 0.5); }
+    .btn-glow:active { transform: translateY(1px) scale(0.98); }
+
+    /* Button 2: Magnetic Cursor Button */
+    .btn-magnetic {
+      padding: 14px 32px; border-radius: 99px; background: #fff; color: #000; font-weight: 800;
+      border: none; cursor: pointer; transition: transform 0.15s ease-out;
+    }
+
+    /* Button 3: Shimmer Border Beam */
+    .btn-shimmer-wrap {
+      position: relative; padding: 1px; border-radius: 99px; overflow: hidden; display: inline-block; cursor: pointer;
+    }
+    .btn-shimmer-wrap::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: conic-gradient(transparent, var(--cyan), transparent 30%); animation: rotate 3s linear infinite;
+    }
+    .btn-shimmer-inner {
+      position: relative; background: #0E0E14; padding: 14px 32px; border-radius: 99px; font-weight: 700; color: #fff;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Button 4: Neon Cyber Pill */
+    .btn-neon {
+      padding: 14px 32px; border-radius: 99px; background: transparent; color: var(--cyan);
+      border: 1px solid var(--cyan); font-family: 'JetBrains Mono', monospace; font-weight: bold; cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-neon:hover { background: var(--cyan); color: #000; box-shadow: 0 0 25px rgba(0, 240, 255, 0.5); }
+  </style>
+</head>
+<body>
+  <h1>BUTTON ARCHITECTURE // SUITE A</h1>
+  <p>Tactile micro-physics, magnetic cursor attraction, and active state sheen.</p>
+
+  <div class="grid-buttons">
+    <div class="box">
+      <span class="label">01 // Glow Cyber</span>
+      <button class="btn-glow" onclick="triggerBtn('Glow Protocol Initiated', 659)">Deploy Protocol</button>
+    </div>
+
+    <div class="box">
+      <span class="label">02 // Magnetic Cursor</span>
+      <button class="btn-magnetic" id="mag-btn" onclick="triggerBtn('Magnetic Gravitational Pull Engaged', 784)">Magnetic Pull</button>
+    </div>
+
+    <div class="box">
+      <span class="label">03 // Shimmer Beam</span>
+      <div class="btn-shimmer-wrap" onclick="triggerBtn('Conic Shimmer Beam Discharged', 880)">
+        <div class="btn-shimmer-inner">Shimmer Orbit</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <span class="label">04 // Neon Cyber Pill</span>
+      <button class="btn-neon" onclick="triggerBtn('SYSTEM_EXEC Kernel Dispatched', 987)">SYSTEM_EXEC</button>
+    </div>
+  </div>
+
+  <div id="toast-dock" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999;"></div>
+
+  <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #777; flex-wrap: wrap; gap: 12px;">
+    <div>SUITE // 02 // BUTTONS A</div>
+    <div>Designed &amp; Architected by <strong style="color: var(--cyan);">Antigravity</strong> // Google DeepMind</div>
+    <div><a href="../index.html" style="color: #aaa; text-decoration: none;">← Lab Portal</a> | <a href="../../index.html" style="color: var(--cyan); text-decoration: none;">Master Hub</a></div>
+  </footer>
+
+  <script>
+    // Magnetic Hook
+    const btn = document.getElementById('mag-btn');
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) * 0.4;
+      const y = (e.clientY - rect.top - rect.height / 2) * 0.4;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'translate(0px, 0px)';
+    });
+
+    // Synthesized Web Audio & Tactile Toast
+    let aCtx = null;
+    function triggerBtn(msg, freq = 659) {
+      if (!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (aCtx.state === 'suspended') aCtx.resume();
+      const osc = aCtx.createOscillator();
+      const gain = aCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, aCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, aCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(aCtx.destination);
+      osc.start();
+      osc.stop(aCtx.currentTime + 0.22);
+
+      const dock = document.getElementById('toast-dock');
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: rgba(18,18,26,0.9); border: 1px solid var(--cyan); border-radius: 8px; padding: 10px 16px; color: #fff; font-family: "JetBrains Mono", monospace; font-size: 0.78rem; box-shadow: 0 0 20px rgba(0,240,255,0.3); transition: all 0.2s ease;';
+      toast.innerText = `⚡ ${msg}`;
+      dock.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 200);
+      }, 2400);
+    }
+  </script>
+</body>
+</html>

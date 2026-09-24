@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CARDS SUITE B // Bento Grid &amp; 3D Interactive Flip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #181820;
+      --card-bg: #1e1e28;
+      --accent: #00F0FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: var(--bg); color: #fff; padding: 60px 20px; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; text-align: center; }
+    p { color: #888; margin-bottom: 50px; text-align: center; }
+
+    .grid-container {
+      display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; width: 100%; max-width: 1000px;
+    }
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    @media (max-width: 800px) { .span-8, .span-4 { grid-column: span 12; } }
+
+    /* Card 1: Neumorphic Dark Surface */
+    .neumorphic-card {
+      background: var(--card-bg); border-radius: 24px; padding: 36px;
+      box-shadow: 10px 10px 20px #111116, -10px -10px 20px #2b2b3a;
+    }
+
+    /* Card 2: Interactive 3D Flip Card */
+    .flip-container {
+      perspective: 1000px; min-height: 280px; cursor: pointer;
+    }
+    .flip-inner {
+      position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .flip-container.flipped .flip-inner { transform: rotateY(180deg); }
+
+    .flip-front, .flip-back {
+      position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 24px; padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .flip-front {
+      background: var(--card-bg); box-shadow: 10px 10px 20px #111116, -10px -10px 20px #2b2b3a;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .flip-back {
+      background: linear-gradient(135deg, #102A36, #1A1A2E); border: 2px solid var(--accent);
+      transform: rotateY(180deg); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>CARDS SUITE B // NEUMORPHIC &amp; 3D FLIP</h1>
+  <p>Dark tactile neumorphic soft UI and clickable 180° 3D flip card mechanics.</p>
+
+  <div class="grid-container">
+    <div class="neumorphic-card span-8">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #888; text-transform: uppercase;">SURFACE ELEVATION</span>
+      <h3 style="font-size: 1.5rem; font-weight: 700; margin: 12px 0;">Neumorphic Dual-Vector Shadow</h3>
+      <p style="color: #9AA0B0; line-height: 1.6;">
+        Simulates soft extruded material in dark mode using inverted light/dark shadow pairs (`10px 10px 20px #111116` &amp; `-10px -10px 20px #2b2b3a`).
+      </p>
+    </div>
+
+    <div class="flip-container span-4" onclick="this.classList.toggle('flipped')">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent);">CLICK TO FLIP ↻</span>
+            <h3 style="font-size: 1.3rem; margin-top: 12px;">3D Flip Front</h3>
+            <p style="color: #888; font-size: 0.85rem; margin-top: 8px;">Click this card to trigger a 180-degree hardware-accelerated 3D spatial flip.</p>
+          </div>
+          <span style="font-size: 0.75rem; color: #666;">PERSPECTIVE: 1000PX</span>
+        </div>
+        <div class="flip-back">
+          <div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #34D399;">REVERSE MATRIX</span>
+            <h3 style="font-size: 1.3rem; margin-top: 12px;">Back Face Revealed</h3>
+            <p style="color: #00F0FF; font-size: 0.85rem; margin-top: 8px;">Full 3D reverse side with independent content state and glowing border.</p>
+          </div>
+          <span style="font-size: 0.75rem; color: #fff;">CLICK AGAIN TO RETURN ↻</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TYPOGRAPHY SUITE B // Cyber Kinetic &amp; Scramble Decoder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syne:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060608;
+      --cyan: #00F0FF;
+      --lime: #CCFF00;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: #fff; overflow-x: hidden; padding: 60px 0;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+    /* Interactive Glitch Scramble Text */
+    .scramble-box {
+      margin: 40px 0 60px; padding: 40px; background: #0E0E14; border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px; cursor: pointer;
+    }
+    .scramble-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan); letter-spacing: 0.15em; margin-bottom: 12px; display: block; }
+    .glitch-title {
+      font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4.2rem); font-weight: 800; letter-spacing: -0.04em;
+      line-height: 1.1; color: var(--lime);
+    }
+
+    /* Infinite Marquee Ribbon */
+    .marquee-wrap {
+      width: 100%; overflow: hidden; background: #111116; border-top: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 0; margin-top: 40px;
+    }
+    .marquee-track {
+      display: flex; gap: 40px; width: max-content; animation: scroll 15s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    .marquee-item {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; text-transform: uppercase;
+      white-space: nowrap; -webkit-text-stroke: 1px rgba(255,255,255,0.3); color: transparent; transition: all 0.2s ease;
+    }
+    .marquee-item:hover { color: var(--cyan); -webkit-text-stroke: 1px var(--cyan); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 style="font-family: var(--font-mono); font-size: 0.85rem; color: #888;">TYPOGRAPHY SUITE B // KINETIC CYBER</h2>
+
+    <div class="scramble-box" onmouseenter="scrambleText()">
+      <span class="scramble-label">HOVER TO RUN NEURAL DECODER SCRAMBLE</span>
+      <h1 class="glitch-title" id="scramble-target">NEURAL_SYNTHESIS_v9</h1>
+      <span style="font-family: var(--font-mono); font-size: 0.8rem; color: #666; margin-top: 14px; display: block;">STATUS: 0.0004s LATENCY // TOKYO NODE</span>
+    </div>
+  </div>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item">KINETIC TYPOGRAPHY</span>
+      <span class="marquee-item">ZERO SLOP RULES</span>
+      <span class="marquee-item">CYBERNETIC HARMONY</span>
+      <span class="marquee-item">VIBE CODING CERTIFIED</span>
+      <!-- Duplicate for infinite marquee loop -->
+      <span class="marquee-item">KINETIC TYPOGRAPHY</span>
+      <span class="marquee-item">ZERO SLOP RULES</span>
+      <span class="marquee-item">CYBERNETIC HARMONY</span>
+      <span class="marquee-item">VIBE CODING CERTIFIED</span>
+    </div>
+  </div>
+
+  <script>
+    const originalText = "NEURAL_SYNTHESIS_v9";
+    const glyphs = "!<>-_\\/[]{}—=+*^?#________";
+    let interval = null;
+
+    function scrambleText() {
+      let iteration = 0;
+      clearInterval(interval);
+      const target = document.getElementById('scramble-target');
+
+      interval = setInterval(() => {
+        target.innerText = originalText
+          .split("")
+          .map((letter, index) => {
+            if (index < iteration) {
+              return originalText[index];
+            }
+            return glyphs[Math.floor(Math.random() * glyphs.length)];
+          })
+          .join("");
+
+        if (iteration >= originalText.length) {
+          clearInterval(interval);
+        }
+        iteration += 1 / 2;
+      }, 30);
+    }
+  </script>
+</body>
+</html>

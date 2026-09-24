@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BUTTONS SUITE B // Tactile, Neo-Brutalist &amp; Audio Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', sans-serif; }
+    body {
+      background: #F4EFEB; color: #111; padding: 60px 20px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; min-height: 100vh;
+    }
+    h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
+    p { color: #666; margin-bottom: 50px; }
+
+    .grid-buttons {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; width: 100%; max-width: 900px;
+    }
+    .box {
+      background: #FFFFFF; border: 3px solid #000; box-shadow: 4px 4px 0 #000; border-radius: 16px;
+      padding: 36px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .label { font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: bold; }
+
+    /* Button 1: Neo-Brutalist Hard Offset */
+    .btn-brutal {
+      padding: 16px 36px; background: #FFE600; color: #000; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.05em; border: 3px solid #000; box-shadow: 4px 4px 0 #000; cursor: pointer; transition: all 0.1s ease;
+    }
+    .btn-brutal:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+    .btn-brutal:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+
+    /* Button 2: Claymorphism 3D Inflated */
+    .btn-clay {
+      padding: 16px 36px; border-radius: 99px; background: #9BB8FF; color: #fff; font-weight: 800; border: none;
+      box-shadow: 8px 8px 16px rgba(130, 160, 220, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.9), inset -4px -4px 8px rgba(130, 160, 220, 0.3), inset 4px 4px 8px rgba(255, 255, 255, 0.8);
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-clay:active { box-shadow: inset 4px 4px 8px rgba(130, 160, 220, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.8); transform: scale(0.96); }
+
+    /* Button 3: Liquid Fill Hover */
+    .btn-liquid {
+      position: relative; padding: 16px 36px; border-radius: 12px; background: transparent; color: #000;
+      border: 3px solid #000; font-weight: 800; cursor: pointer; overflow: hidden; z-index: 1; transition: color 0.3s ease;
+    }
+    .btn-liquid::before {
+      content: ''; position: absolute; inset: 0; background: #00F5A0; transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: -1;
+    }
+    .btn-liquid:hover::before { transform: translateY(0); }
+
+    /* Button 4: Tactile Audio Click */
+    .btn-audio {
+      padding: 16px 36px; border-radius: 99px; background: #FF5757; color: #fff; border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000; font-weight: 800; cursor: pointer; transition: all 0.15s ease;
+    }
+    .btn-audio:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+  </style>
+</head>
+<body>
+  <h1>BUTTON ARCHITECTURE // SUITE B</h1>
+  <p>Physical depth, neo-brutal offset, claymorphism, and synthesized Web Audio feedback.</p>
+
+  <div class="grid-buttons">
+    <div class="box">
+      <span class="label">01 // Neo-Brutalist Offset</span>
+      <button class="btn-brutal" onclick="playClick(440)">Hard Press</button>
+    </div>
+
+    <div class="box">
+      <span class="label">02 // 3D Clay Inflated</span>
+      <button class="btn-clay" onclick="playClick(523)">Clay Cushioned</button>
+    </div>
+
+    <div class="box">
+      <span class="label">03 // Liquid Fill Slide</span>
+      <button class="btn-liquid" onclick="playClick(659)">Liquid Horizon</button>
+    </div>
+
+    <div class="box">
+      <span class="label">04 // Audio Synthesized Feedback</span>
+      <button class="btn-audio" onclick="playClick(880)">Click Sound 🔊</button>
+    </div>
+  </div>
+
+  <script>
+    // Real Web Audio API synthesized mechanical click tone
+    let audioCtx = null;
+    function playClick(freq) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.13);
+    }
+  </script>
+</body>
+</html>
